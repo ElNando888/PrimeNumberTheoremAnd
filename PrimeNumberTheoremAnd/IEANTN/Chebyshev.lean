@@ -9,10 +9,6 @@ import PrimeNumberTheoremAnd.IEANTN.SecondaryDefinitions
 import LeanCert.Engine.ChebyshevPsi
 import LeanCert.Tactic.IntervalAuto
 
-blueprint_comment /--
-\section{Chebyshev's estimates}\label{chebyshev-estimates-sec}
-
-We record Chebyshev's estimates on $\psi$. The material here is adapted from the presentation of Diamond \cite{diamond}. -/
 
 namespace Chebyshev
 
@@ -22,22 +18,9 @@ open LogTables
 
 attribute [local fun_prop] DifferentiableAt.differentiableWithinAt
 
-@[blueprint
-  "cheby-def-T"
-  (title := "The function $T$")
-  (statement := /-- $T(x) := \sum_{n \leq x} \log n$. -/)]
 noncomputable def T (x : ℝ) : ℝ :=
   ∑ n ∈ Finset.Icc 1 ⌊x⌋₊, log n
 
-@[blueprint
-  "cheby-T-upper"
-  (title := "Upper bound on $T$")
-  (statement := /-- For $x \geq 1$, we have $T(x) \leq x \log x - x + 1 + \log x$. -/)
-  (proof := /-- Upper bound $\log n$ by $\int_n^{n+1} \log t\ dt$ for $n < x-1$ and by $\log x$ for $x-1 < n \leq x$ to bound
-  $$T(x) \leq \int_1^x \log t\ dt + \log x$$
-  giving the claim. -/)
-  (latexEnv := "lemma")
-  (discussion := 831)]
 theorem T.le (x : ℝ) (hx : 1 ≤ x) : T x ≤ x * log x - x + 1 + log x := by
   rw [T, ← Ico_insert_right <| Nat.one_le_iff_ne_zero.mpr (Nat.floor_pos.mpr hx).ne',
     sum_insert right_notMem_Ico]
@@ -68,15 +51,6 @@ theorem T.le (x : ℝ) (hx : 1 ≤ x) : T x ≤ x * log x - x + 1 + log x := by
     exact h2 (Set.mem_Ici.mpr h1) (Set.mem_Ici.mpr hx) <| Nat.floor_le (by grind)
   linarith [log_le_log (by positivity) <| Nat.floor_le (by linarith)]
 
-@[blueprint
-  "cheby-T-lower"
-  (title := "Lower bound on $T$")
-  (statement := /-- For $x \geq 1$, we have $T(x) \geq x \log x - x + 1 - \log x$. -/)
-  (proof := /-- Drop the $n=1$ term. Lower bound $\log n$ by $\int_{n-1}^{n} \log t\ dt$ for $2 \leq n < x$ to bound
-  $$T(x) \geq \int_1^{\lfloor x \rfloor} \log t\ dt \geq \int_1^x \log t\ dt - \log x $$
-  giving the claim. -/)
-  (latexEnv := "lemma")
-  (discussion := 832)]
 theorem T.ge (x : ℝ) (hx : 1 ≤ x) : T x ≥ x * log x - x + 1 - log x := by
   have hone_le_floor : 1 ≤ ⌊x⌋₊ := Nat.one_le_iff_ne_zero.mpr (Nat.floor_pos.mpr hx).ne'
   simp only [T, ← Ico_insert_right hone_le_floor, sum_insert right_notMem_Ico]
@@ -104,32 +78,14 @@ theorem T.ge (x : ℝ) (hx : 1 ≤ x) : T x ≥ x * log x - x + 1 - log x := by
       _ = ⌊x⌋₊ * log ⌊x⌋₊ - ⌊x⌋₊ + 1 := by grind [integral_log]
   linarith
 
-@[blueprint
-  "cheby-T-Lambda"
-  (title := "Relating $T$ and von Mangoldt")
-  (statement := /-- For $x \geq 0$, we have $T(x) = \sum_{n \leq x} \Lambda(n) \lfloor x/n \rfloor$. -/)
-  (proof := /-- This follows from the identity $\log n = \sum_{d|n} \Lambda(d)$ and rearranging sums. -/)
-  (latexEnv := "lemma")
-  (discussion := 833)]
 theorem T.eq_sum_Lambda (x : ℝ) : T x = ∑ n ∈ Icc 1 ⌊x⌋₊, Λ n * ⌊x / n⌋₊ := by
   unfold T
   simp_rw [← log_apply, ← vonMangoldt_mul_zeta]
   rw [← Ioc_eq_Icc, sum_Ioc_mul_zeta_eq_sum]
   simp [Nat.floor_div_natCast]
 
-@[blueprint
-  "cheby-E"
-  (title := "$E$ function")
-  (statement := /-- If $\nu : \N \to \R$, let $E: \R \to \R$ denote the function $E(x):= \sum_m \nu(m) \lfloor x / m \rfloor$. -/)]
 noncomputable def E (ν : ℕ →₀ ℝ) (x : ℝ) : ℝ := ν.sum (fun m w ↦ w * ⌊ x / m ⌋₊)
 
-@[blueprint
-  "cheby-T-E"
-  (title := "Relating a weighted sum of $T$ to an $E$-weighted sum of von Mangoldt")
-  (statement := /-- If $\nu : \N \to \R$ is finitely supported, then
-$$ \sum_m \nu(m) T(x/m) = \sum_{n \leq x} E(x/n) \Lambda(n).$$ -/)
-  (latexEnv := "lemma")
-  (discussion := 834)]
 theorem T.weighted_eq_sum (ν : ℕ →₀ ℝ) (x : ℝ) : ν.sum (fun m w ↦ w * T (x/m)) = ∑ n ∈ Icc 1 ⌊x⌋₊, Λ n * E ν (x/n) := by
   simp_rw [T.eq_sum_Lambda, E, Finsupp.mul_sum]
   rw [← sum_finsetSum_comm]
@@ -158,10 +114,6 @@ theorem T.weighted_eq_sum (ν : ℕ →₀ ℝ) (x : ℝ) : ν.sum (fun m w ↦ 
   · grind
 
 open Finsupp in
-@[blueprint
-  "cheby-nu"
-  (title := "Chebyshev's weight $\nu$")
-  (statement := /-- $\nu = e_1 - e_2 - e_3 - e_5 + e_{30}$, where $e_n$ is the Kronecker delta at $n$. -/)]
 noncomputable def ν : ℕ →₀ ℝ := single 1 1 - single 2 1 - single 3 1 - single 5 1 + single 30 1
 
 /-- The support of `ν` is `{1, 2, 3, 5, 30}`. Used whenever we need to unfold `ν.sum`. -/
@@ -199,22 +151,9 @@ private lemma floor_div_bounds {y : ℝ} (hy : 0 ≤ y) {k : ℕ} (hk : 1 ≤ k)
     have : (⌊y⌋₊ : ℝ) < (k : ℝ) * (⌊y / k⌋₊ + 1) := (Nat.floor_le hy).trans_lt hy_lt
     exact_mod_cast this
 
-@[blueprint
-  "cheby-nu-cancel"
-  (title := "Cancellation property of $\nu$")
-  (statement := /-- One has $\sum_n \nu(n)/n = 0$ -/)
-  (proof := /-- This follows from direct computation. -/)
-  (latexEnv := "lemma")]
 theorem nu_sum_div_eq_zero : ν.sum (fun n w ↦ w / n) = 0 := by
   norm_num [ν, add_div, sum_add_index', sub_div, sum_sub_index]
 
-@[blueprint
-  "cheby-E-1"
-  (title := "$E$ initially constant")
-  (statement := /-- One has $E(x)=1$ for $1 \leq x < 6$. -/)
-  (proof := /-- This follows from direct computation. -/)
-  (latexEnv := "lemma")
-  (discussion := 835)]
 theorem E_nu_eq_one (x : ℝ) (hx : x ∈ Set.Ico 1 6) : E ν x = 1 := by
   obtain ⟨h1, h6⟩ := hx
   have hx0 : (0 : ℝ) ≤ x := by linarith
@@ -228,12 +167,6 @@ theorem E_nu_eq_one (x : ℝ) (hx : x ∈ Set.Ico 1 6) : E ν x = 1 := by
   rw [show ⌊x⌋₊ = ⌊x / 2⌋₊ + ⌊x / 3⌋₊ + ⌊x / 5⌋₊ + 1 by omega]
   grind
 
-@[blueprint
-  "cheby-E-periodic"
-  (title := "$E$ is periodic")
-  (statement := /-- One has $E(x+30) = E(x)$. -/)
-  (proof := /-- This follows from direct computation. -/)
-  (latexEnv := "lemma")]
 theorem E_nu_period (x : ℝ) (hx : x ≥ 0) : E ν (x + 30) = E ν x := by
   have h (k : ℝ) : (x + 30) / k = x / k + (30 / k) := by ring
   simp_rw [E_nu_expand, h 2, h 3, h 5, h 30]
@@ -242,13 +175,6 @@ theorem E_nu_period (x : ℝ) (hx : x ≥ 0) : E ν (x + 30) = E ν x := by
   rw [Nat.floor_add_one (by positivity)]
   grind
 
-@[blueprint
-  "cheby-E-val"
-  (title := "$E$ lies between $0$ and $1$")
-  (statement := /-- One has $0 \leq E(x) \leq 1$ for all $x \geq 0$. -/)
-  (proof := /-- This follows from direct computation for $0 \leq x < 30$, and then by periodicity for larger $x$. -/)
-  (latexEnv := "lemma")
-  (discussion := 836)]
 theorem E_nu_bound (x : ℝ) (hx : x ≥ 0) : 0 ≤ E ν x ∧ E ν x ≤ 1 := by
   have : ∀ y, 0 ≤ y → y < 30 → 0 ≤ E ν y ∧ E ν y ≤ 1 := fun y hy0 hy30 ↦ by
     simp only [E_nu_expand, Nat.floor_eq_zero.mpr (by linarith : y / 30 < 1), Nat.cast_zero, add_zero]
@@ -273,19 +199,8 @@ theorem E_nu_bound (x : ℝ) (hx : x ≥ 0) : 0 ≤ E ν x ∧ E ν x ≤ 1 := b
     | succ n ih => simp [add_mul, ← add_assoc, E_nu_period _ (by linarith : y + n * 30 ≥ 0), ih]
   exact hxy ▸ this y hy.1 hy.2
 
-@[blueprint
-  "cheby-U-def"
-  (title := "The $U$ function")
-  (statement := /-- We define $U(x) := \sum_m \nu(m) T(x/m)$. -/)]
 noncomputable def U (x : ℝ) : ℝ := ν.sum (fun m w ↦ w * T (x/m))
 
-@[blueprint
-  "cheby-psi-lower"
-  (title := "Lower bounding $\\psi$ by a weighted sum of $T$")
-  (statement := /-- For any $x > 0$, one has $\psi(x) \geq U(x)$. -/)
-  (proof := /-- Use Lemma \ref{cheby-T-E} and Lemma \ref{cheby-E-val}. -/)
-  (latexEnv := "proposition")
-  (discussion := 837)]
 theorem psi_ge_weighted (x : ℝ) (hx : x > 0) : ψ x ≥ U x := by
   unfold U psi
   rw [T.weighted_eq_sum, ← Ioc_eq_Icc]
@@ -294,13 +209,6 @@ theorem psi_ge_weighted (x : ℝ) (hx : x > 0) : ψ x ≥ U x := by
   grw [this.2, mul_one]
   exact vonMangoldt_nonneg
 
-@[blueprint
-  "cheby-psi-diff"
-  (title := "Upper bounding a difference of $\\psi$ by a weighted sum of $T$")
-  (statement := /-- For any $x > 0$, one has $\psi(x) - \psi(x/6) \leq U(x)$. -/)
-  (proof := /-- Use Lemma \ref{cheby-T-E}, Lemma \ref{cheby-E-val}, and Lemma \ref{cheby-E-1}. -/)
-  (latexEnv := "proposition")
-  (discussion := 838)]
 theorem psi_diff_le_weighted (x : ℝ) (hx : x > 0) : ψ x - ψ (x / 6) ≤ U x := by
   unfold U psi
   rw [T.weighted_eq_sum, ← Ioc_eq_Icc]
@@ -320,10 +228,6 @@ theorem psi_diff_le_weighted (x : ℝ) (hx : x > 0) : ψ x - ψ (x / 6) ≤ U x 
     rwa [mul_comm] at this
   · exact E_nu_bound _ (div_nonneg hx.le (by simp))|>.1
 
-@[blueprint
-  "a-def"
-  (title := "The constant $a$")
-  (statement := /-- We define $a := -\sum_m \nu(m) \log m / m$. -/)]
 noncomputable def a : ℝ := - ν.sum (fun m w ↦ w * log m / m)
 
 lemma a_simpl : a = (7/15) * Real.log 2 + (3/10) * Real.log 3 + (1/6) * Real.log 5 := by
@@ -331,12 +235,6 @@ lemma a_simpl : a = (7/15) * Real.log 2 + (3/10) * Real.log 3 + (1/6) * Real.log
   norm_num [Finset.sum, ν]
   grind [show (30 : ℝ) = 2 * 3 * 5 by ring, log_mul, log_mul]
 
-@[blueprint
-  "a-val"
-  (title := "Numerical value of $a$")
-  (statement := /-- We have $0.92129 \leq a \leq 0.92130$. -/)
-  (latexEnv := "lemma")
-  (discussion := 839)]
 theorem a_bound : a ∈ Set.Icc 0.92129 0.92130 := by
   norm_num [Chebyshev.a_simpl]
   constructor <;> nlinarith [log_2_gt, log_2_lt, log_3_gt, log_3_lt, log_5_gt, log_5_lt]
@@ -379,13 +277,6 @@ lemma Finsupp.abs_sum_le (A : Type*) (ν : A →₀ ℝ) (g : A → ℝ → ℝ)
   simp_rw [Finsupp.sum.eq_1]
   exact abs_sum_le_sum_abs (fun i ↦ g i (ν i)) ν.support
 
-@[blueprint
-  "U-bounds"
-  (title := "Bounds for $U$")
-  (statement := /-- For $x \geq 30$, we have $|U(x) - ax| \leq 5\log x - 5$. -/)
-  (proof := /-- Use Lemma \ref{cheby-T-upper}, Lemma \ref{cheby-T-lower}, the definition of $a$, and the triangle inequality, also using that $\log(2)+\log(3)+\log(5)+\log(30) \geq 6$. -/)
-  (latexEnv := "lemma")
-  (discussion := 840)]
 theorem U_bound (x : ℝ) (hx : 30 ≤ x) : |U x - a * x| ≤ 5 * log x - 5 := by
   have hxpos : 0 < x := lt_of_lt_of_le (by norm_num) hx
   rw [U_bound.lemma_3, U_bound.lemma_4 x hxpos]
@@ -441,35 +332,15 @@ theorem U_bound (x : ℝ) (hx : 30 ≤ x) : |U x - a * x| ≤ 5 * log x - 5 := b
     linarith [log_2_gt, log_3_gt, log_5_gt, log_30_gt]
   grw [hgeq6]; rw [habs]; linarith
 
-@[blueprint
-  "psi-lower"
-  (title := "Lower bound for $\\psi$")
-  (statement := /-- For $x \geq 30$, we have $\psi(x) \geq ax - 5\log x - 1$. -/)
-  (proof := /-- Use Lemma \ref{U-bounds} and Proposition \ref{cheby-psi-lower}.-/)
-  (latexEnv := "theorem")
-  (discussion := 841)]
 theorem psi_lower (x : ℝ) (hx : 30 ≤ x) : ψ x ≥ a * x - 5 * log x + 5 := by
   have h2 := abs_sub_le_iff.mp (U_bound x hx)
   linarith [psi_ge_weighted x (by linarith), h2.1]
 
-@[blueprint
-  "psi-diff-upper"
-  (title := "Upper bound for $\\psi$ difference")
-  (statement := /-- For $x \geq 30$, we have $\psi(x) - \psi(x/6) \leq ax + 5\log x - 5$. -/)
-  (proof := /-- Use Lemma \ref{U-bounds} and Proposition \ref{cheby-psi-upper}.-/)
-  (latexEnv := "proposition")
-  (discussion := 842)]
 theorem psi_diff_upper (x : ℝ) (hx : 30 ≤ x) : ψ x - ψ (x / 6) ≤ a * x + 5 * log x - 5 := by
   have h2 := abs_sub_le_iff.mp (U_bound x hx)
   linarith [psi_diff_le_weighted x (by linarith), h2.2]
 
 -- Proof splits into many cases
-@[blueprint
-  "psi-num"
-  (title := "Numerical bound for $\\psi(x)$ for very small $x$")
-  (statement := /-- For $0 < x \leq 30$, we have $\psi(x) \leq 1.015 x$. -/)
-  (proof := /-- Numerical check (the maximum occurs at $x=19$).  One only needs to check the case when $x$ is a prime power.-/)
-  (latexEnv := "sublemma")]
 theorem psi_num (x : ℝ) (hx : x > 0) (hx2 : x ≤ 30) : ψ x ≤ 1.015 * x := by
   suffices ∀ n ∈ Icc (0 : ℕ) 30, ψ n ≤ 1.015 * n by
     rw [psi_eq_psi_coe_floor]
@@ -498,13 +369,6 @@ theorem psi_num (x : ℝ) (hx : x > 0) (hx2 : x ≤ 30) : ψ x ≤ 1.015 * x := 
     try grw [log_23_lt]; try grw [log_29_lt]
     norm_num
 
-@[blueprint
-  "psi-upper"
-  (title := "Upper bound for $\\psi$")
-  (statement := /-- For $x \geq 30$, we have $\psi(x) \leq 6ax/5 + (\log (x/5) / \log 6) (5 \log x - 5)$. -/)
-  (proof := /-- Iterate Lemma \ref{psi-diff-upper} using Sublemma \ref{psi-num} .-/)
-  (latexEnv := "theorem")
-  (discussion := 843)]
 theorem psi_upper (x : ℝ) (hx : 30 ≤ x) : ψ x ≤ 6 * a * x / 5 + (log (x/5) / log 6) * (5 * log x - 5) := by
   -- Compute `6 ^ (log (x/5) / log 6 - 1) = x / 30` (used twice below).
   have rpow_key : (30 : ℝ) * 6 ^ (log (x / 5) / log 6 - 1) = x := by
@@ -586,12 +450,6 @@ open LeanCert.Engine.ChebyshevPsi in
 private theorem allChecks_11723 : checkAllPsiLeMulWith 11723 (111 / 100) 20 = true :=
   by native_decide
 
-@[blueprint
-  "psi-num-2"
-  (title := "Numerical bound for $\\psi(x)$ for medium $x$")
-  (statement := /-- For $0 < x \leq 11723$, we have $\psi(x) \leq 1.11 x$. -/)
-  (proof := /-- Verified by brute-force: an $O(N)$ incremental checker confirms $\psi(N) \leq 1.11 N$ for every integer $N = 1, \ldots, 11723$ via \texttt{native\_decide}. The sparse checkpoint ladder originally described here is not needed. The real-variable case follows by monotonicity of $\psi$. -/)
-  (latexEnv := "sublemma")]
 theorem psi_num_2 (x : ℝ) (hx : x > 0) (hx2 : x ≤ 11723) : ψ x ≤ 1.11 * x := by
   open LeanCert.Engine.ChebyshevPsi in
   rw [psi_eq_psi_coe_floor x]
@@ -615,13 +473,6 @@ lemma hlog_y (y : ℝ) (hy : 11723 < y) : log y ≤ log 11723 + (y / 11723 - 1) 
     _ = log 11723 + log (y / 11723) := Real.log_mul (by norm_num) (by positivity)
     _ ≤ log 11723 + (y / 11723 - 1) := by grind [Real.log_le_sub_one_of_pos]
 
-@[blueprint
-  "psi-upper-clean"
-  (title := "Clean upper bound for $\\psi$")
-  (statement := /-- For $x > 0$, we have $\psi(x) \leq 1.11 x$. -/)
-  (proof := /-- Strong induction on $x$.  For $x \leq 11723$ one can use Sublemma \ref{psi-num-2}.  Otherwise, we can use Proposition \ref{psi-diff-upper} and the triangle inequality. -/)
-  (latexEnv := "theorem")
-  (discussion := 844)]
 theorem psi_upper_clean (x : ℝ) (hx : x > 0) : ψ x ≤ 1.11 * x := by
   have hlog_large : ∀ y : ℝ, 11723 < y → 5 * log y - 5 ≤ (37 / 10000 : ℝ) * y := by
     intro y hy

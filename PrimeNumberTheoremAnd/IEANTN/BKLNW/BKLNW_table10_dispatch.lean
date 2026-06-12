@@ -13,18 +13,6 @@ open Real
 set_option maxHeartbeats 12000000 in
 -- The generated proof enumerates all 287 table rows and five k-cases per row.
 set_option maxRecDepth 100000 in
-@[blueprint
-  "bklnw-table-10-verification"
-  (title := "BKLNW Table 10 verification")
-  (statement := /--  Verification of the entries of Table 10, up to the safety margin
-  $m = 1.002001$: each row $(b, B_1, \ldots, B_5)$ of the (unabridged) Table 10 satisfies
-  $$B^{\mathrm{exact}}_k(b, \mathrm{next}(b)) \le B_k \cdot m \qquad (k = 1, \ldots, 5),$$
-  where $m$ is the Table 8 margin $1.001$ composed with a further factor $1.001$,
-  accounting for the final-digit rounding of the printed values. -/)
-  (proof := /-- Enumerate the 287 rows of `table_10`, split into the five `k` cases,
-  and discharge each case using the generated row margin and next-row certificates. -/)
-  (latexEnv := "proposition")
-  (discussion := 1255)]
 theorem bklnw_table_10_verification (b : ℝ) (B : ℕ → ℝ) (h : (b, B 1, B 2, B 3, B 4, B 5) ∈ BKLNW.table_10) : ∀ k ∈ Finset.Icc 1 5, B_8_exact k b (table_10_next b) ≤ B k * table_10_margin := by
   intro k hk
   have hk1 : 1 ≤ k := (Finset.mem_Icc.mp hk).1

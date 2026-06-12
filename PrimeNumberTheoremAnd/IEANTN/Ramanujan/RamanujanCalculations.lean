@@ -361,14 +361,6 @@ lemma Li_eq_sub_add_integral (x : ℝ) (hx : 2 ≤ x) :
         (by linarith [Set.mem_Icc.mp (by simpa [hx] using ht)]))
           (ne_of_gt (log_pos (by linarith [Set.mem_Icc.mp (by simpa [hx] using ht)]))))
 
-@[blueprint
-  "pi-error-identity"
-  (title := "Integral identity for pi - Li")
-  (statement := /-- If $x \geq 2$, then
-$$\pi(x) - \textrm{Li}(x) = \frac{\theta(x) - x}{\log x} + \frac{2}{\log 2} + \int_{2}^{x} \frac{\theta(t) -t}{t \log^{2}t}\, dt.$$ -/)
-  (proof := /-- Follows from Sublemma \ref{rs-417} and the fundamental theorem of calculus. -/)
-  (latexEnv := "lemma")
-  (discussion := 986)]
 theorem pi_error_identity (x : ℝ) (hx : 2 ≤ x) :
     pi x - Li x = (θ x - x) / log x + 2 / log 2 + ∫ t in Icc 2 x, (θ t - t) / (t * log t ^ 2) := by
   have h_integral : ∫ t in Set.Icc 2 x, (θ t - t) / (t * log t ^ 2) =
@@ -420,17 +412,6 @@ theorem integrable_theta (x : ℝ) :
     monotoneOn_id.integrableOn_isCompact isCompact_Icc |>.mul_continuousOn l0 isCompact_Icc
   simpa [div_sub_div_same] using l1.sub' l2
 
-@[blueprint
-  "ramanujan-pi-upper"
-  (title := "Upper bound for pi")
-  (statement := /-- Suppose that for $x \geq 2$ we have $|\theta(x)-x|\log^{5} x\leq x a(x)$. Then
-$$
-\pi(x)\leq \frac{x}{\log x} +a(x)\frac{x}{\log^6 x}+\int_2^x\frac{d t}{\log^2 t}+\int_2^x\frac{a(t)}{\log^7 t}\ dt.
-$$ (cf. \cite[\S 5]{PT2021})
--/)
-  (proof := /-- Follows from Lemma \ref{pi-error-identity} and the triangle inequality. -/)
-  (latexEnv := "sublemma")
-  (discussion := 987)]
 theorem pi_upper (a : ℝ → ℝ) (htheta : ∀ x ≥ 2, |θ x - x| * log x ^ 5 ≤ x * a x) (x : ℝ)
     (ha : IntegrableOn (fun t ↦ a t / log t ^ 7) (Icc 2 x) volume)
     (hx : 2 ≤ x) :
@@ -462,17 +443,6 @@ theorem pi_upper (a : ℝ → ℝ) (htheta : ∀ x ≥ 2, |θ x - x| * log x ^ 5
         · field_simp (disch := grind); rfl
         · exact mul_nonneg (by grind) (pow_nonneg (log_nonneg (by grind)) 7)
 
-@[blueprint
-  "ramanujan-pi-lower"
-  (title := "Lower bound for pi")
-  (statement := /-- Suppose that for $x \geq 2$ we have $|\theta(x)-x|\log^{5} x\leq x a(x)$. Then
-$$
-\pi(x)\geq \frac{x}{\log x} -a(x)\frac{x}{\log^6 x}+\int_2^x\frac{d t}{\log^2 t}-\int_2^x\frac{a(t)}{\log^7 t}\ dt.
-$$ (cf. \cite[\S 5]{PT2021})
--/)
-  (proof := /-- Follows from Lemma \ref{pi-error-identity} and the triangle inequality. -/)
-  (latexEnv := "sublemma")
-  (discussion := 989)]
 theorem pi_lower (a : ℝ → ℝ) (htheta : ∀ x ≥ 2, |θ x - x| * log x ^ 5 ≤ x * a x) (x : ℝ)
     (ha : IntegrableOn (fun t ↦ a t / log t ^ 7) (Icc 2 x) volume)
     (hx : 2 ≤ x) :
@@ -665,15 +635,6 @@ theorem log_8_bound (x : ℝ) (hx : 2 ≤ x) :
       mul_pos (sqrt_pos.mpr (by linarith))
         (pow_pos (inv_pos.mpr (log_pos (by linarith))) _)]
 
-@[blueprint
-  "log-7-int-bound"
-  (title := "Bound for integral of an inverse power of log")
-  (statement := /-- For $x \geq 2$ we have
-$$\int_2^x \frac{dt}{\log^7 t} < \frac{x}{\log^7 x} + 7 \Big( \frac{\sqrt{x}}{\log^8 2} + \frac{2^8 x}{\log^8 x} \Big).$$
-(cf. \cite[Section 2.3]{dudek-platt})-/)
-  (proof := /-- Integrate by parts to write the left-hand side as $\frac{x}{\log^7 x} - \frac{2}{\log^7 2} + 7 \int_2^x \frac{t}{\log^8 t} dt$.  Discard the middle term.  For the final term, split between $\int_2^{\sqrt{x}}$ and $\int_{\sqrt{x}}^x$.  For the first, use the bound $\int_2^{\sqrt{x}} \frac{t}{\log^8 t} dt < \int_2^{\sqrt{x}} \frac{t}{\log^8 2} dt$, and for the second, use the bound $\int_{\sqrt{x}}^x \frac{t}{\log^8 t} dt < \int_{\sqrt{x}}^x \frac{t}{\log^8 x} dt$.-/)
-  (latexEnv := "lemma")
-  (discussion := 988)]
 theorem log_7_int_bound (x : ℝ) (hx : 2 ≤ x) :
     ∫ t in Set.Icc 2 x, 1 / log t ^ 7 < x / log x ^ 7 + 7 * (sqrt x / log 2 ^ 8 + 2 ^ 8 * x / log x ^ 8) := by
   rw [log_7_IBP x hx]; linarith [log_8_bound x hx, show 0 ≤ 2 / log 2 ^ 7 by positivity]

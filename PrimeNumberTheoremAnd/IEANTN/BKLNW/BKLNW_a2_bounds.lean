@@ -653,14 +653,6 @@ theorem cor_5_1_rem' (b a₂b : ℝ) (m : ℕ)
   · rw [show (1 + 1.937e-8 : ℝ) = (1.00000001937 : ℝ) from by norm_num, rpow_neg_nat]
     exact a2_300_mem_Icc
 
-@[blueprint
-  "bklnw-cor-5-1-rem"
-  (title := "Remark after BKLNW Corollary 5.1")
-  (statement :=
-    /-- We have the following values for $a_2$, given by the
-    table after \cite[Corollary 5.1]{BKLNW}. -/)
-  (latexEnv := "remark")
-  (discussion := 853)]
 theorem BKLNW.cor_5_1_rem (b a₂b : ℝ) (m : ℕ)
     (hb : (b, a₂b, m) ∈ table_cor_5_1) :
     a₂ b ∈ Set.Icc a₂b (a₂b + 10 ^ (-m : ℝ)) :=

@@ -1,4 +1,3 @@
-import Architect
 import Mathlib.NumberTheory.Harmonic.Bounds
 import PrimeNumberTheoremAnd.Mathlib.Analysis.SpecialFunctions.Log.Basic
 import PrimeNumberTheoremAnd.Defs
@@ -35,16 +34,6 @@ lemma th43_b (x : ℝ) (hx : 2 ≤ x) :
   rw [integral_Icc_eq_integral_Ioc, ← intervalIntegral.integral_of_le hx]
   exact Chebyshev.primeCounting_eq_theta_div_log_add_integral hx
 
-@[blueprint
-  (title := "finsum-range-eq-sum-range")
-  (statement := /--
-   For any arithmetic function $f$ and real number $x$, one has
-  $$ \sum_{n \leq x} f(n) = \sum_{n \leq ⌊x⌋_+} f(n)$$
-  and
-  $$ \sum_{n < x} f(n) = \sum_{n < ⌈x⌉_+} f(n).$$
-  -/)
-  (proof := /-- Straightforward. -/)
-  (latexEnv := "lemma")]
 lemma finsum_range_eq_sum_range {R : Type*} [AddCommMonoid R] {f : ArithmeticFunction R} (x : ℝ) :
     ∑ᶠ (n : ℕ) (_: n < x), f n = ∑ n ∈ range ⌈x⌉₊, f n := by
   apply finsum_cond_eq_sum_of_cond_iff f
@@ -159,21 +148,6 @@ lemma filter_prime_Iic_eq_Icc (n : ℕ) : filter Prime (Iic n) = filter Prime (I
 lemma Icc_zero_eq_insert (n : ℕ) : Icc 0 n = insert 0 (Icc 1 n) := by
   ext m; simp [mem_Icc]; omega
 
-@[blueprint "chebyshev-asymptotic"
-  (title := "chebyshev-asymptotic")
-  (statement := /--
-  One has
-  $$ \sum_{p \leq x} \log p = x + o(x).$$
-  -/)
-  (proof := /--
-  From the prime number theorem we already have
-  $$ \sum_{n \leq x} \Lambda(n) = x + o(x)$$
-  so it suffices to show that
-  $$ \sum_{j \geq 2} \sum_{p^j \leq x} \log p = o(x).$$
-  Only the terms with $j \leq \log x / \log 2$ contribute, and each $j$ contributes at most
-  $\sqrt{x} \log x$ to the sum, so the left-hand side is $O( \sqrt{x} \log^2 x ) = o(x)$ as
-  required.
-  -/)]
 theorem chebyshev_asymptotic : θ ~[atTop] id := by
   refine WeakPNT''.add_isLittleO'' (IsBigO.trans_isLittleO (g := fun x ↦ 2 * x.sqrt * x.log) ?_ ?_)
   · rw [isBigO_iff']; refine ⟨1, one_pos, ?_⟩
@@ -275,14 +249,6 @@ theorem chebyshev_asymptotic'' :
 -- one could also consider adding a version with p < x instead of p \leq x
 
 
-@[blueprint
-  (title := "primorial-bounds")
-  (statement := /--
-  We have
-    $$ \prod_{p \leq x} p = \exp( x + o(x) )$$
-  -/)
-  (proof := /-- Exponentiate Theorem \ref{chebyshev_asymptotic}. -/)
-  (latexEnv := "corollary")]
 theorem primorial_bounds :
     ∃ E : ℝ → ℝ, E =o[atTop] (fun x ↦ x) ∧
       ∀ x : ℝ, ∏ p ∈ (Iic ⌊x⌋₊).filter Nat.Prime, p = exp (x + E x) := by
@@ -762,28 +728,6 @@ theorem pi_asymp'' :
     _ = ε := by
       field
 
-@[blueprint
-  (title := "pi-asymp")
-  (statement := /--
-  There exists a function $c(x)$ such that $c(x) = o(1)$ as $x \to \infty$ and
-  $$ \pi(x) = (1 + c(x)) \int_2^x \frac{dt}{\log t}$$
-  for all $x$ large enough.
-  -/)
-  (proof := /--
-  We have the identity
-  $$ \pi(x) = \frac{1}{\log x} \sum_{p \leq x} \log p
-  + \int_2^x (\sum_{p \leq t} \log p) \frac{dt}{t \log^2 t}$$
-  as can be proven by interchanging the sum and integral and using the fundamental theorem of
-  calculus.  For any $\eps$, we know from Theorem \ref{chebyshev_asymptotic} that there is $x_\eps$
-  such that $\sum_{p \leq t} \log p = t + O(\eps t)$ for $t \geq x_\eps$, hence for $x \geq x_\eps$
-  $$ \pi(x) = \frac{1}{\log x} (x + O(\eps x))
-  + \int_{x_\eps}^x (t + O(\eps t)) \frac{dt}{t \log^2 t} + O_\eps(1)$$
-  where the $O_\eps(1)$ term can depend on $x_\eps$ but is independent of $x$.  One can evaluate
-  this after an integration by parts as
-  $$ \pi(x) = (1+O(\eps)) \int_{x_\eps}^x \frac{dt}{\log t} + O_\eps(1)$$
-  $$  = (1+O(\eps)) \int_{2}^x \frac{dt}{\log t} $$
-  for $x$ large enough, giving the claim.
-  -/)]
 theorem pi_asymp :
     ∃ c : ℝ → ℝ, c =o[atTop] (fun _ ↦ (1 : ℝ)) ∧
       ∀ᶠ (x : ℝ) in atTop,
@@ -851,27 +795,6 @@ lemma integral_div_log_asymptotic : ∃ c : ℝ → ℝ, c =o[atTop] (fun _ ↦ 
     rw [integral_log_inv_pialt x hx]
     field [show log x ≠ 0 by simp; grind]
 
-@[blueprint
-  (title := "pi-alt")
-  (statement := /--
-    One has
-  $$ \pi(x) = (1+o(1)) \frac{x}{\log x}$$
-  as $x \to \infty$.
-  -/)
-  (proof := /--
-  An integration by parts gives
-  $$ \int_2^x \frac{dt}{\log t} = \frac{x}{\log x} - \frac{2}{\log 2} +
-  \int_2^x \frac{dt}{\log^2 t}.$$
-  We have the crude bounds
-  $$ \int_2^{\sqrt{x}} \frac{dt}{\log^2 t} = O( \sqrt{x} )$$
-  and
-  $$ \int_{\sqrt{x}}^x \frac{dt}{\log^2 t} = O( \frac{x}{\log^2 x} )$$
-  and combining all this we obtain
-  $$ \int_2^x \frac{dt}{\log t} = \frac{x}{\log x} + O( \frac{x}{\log^2 x} )$$
-  $$ = (1+o(1)) \frac{x}{\log x}$$
-  and the claim then follows from Theorem \ref{pi_asymp}.
-  -/)
-  (latexEnv := "corollary")]
 theorem pi_alt : ∃ c : ℝ → ℝ, c =o[atTop] (fun _ ↦ (1 : ℝ)) ∧
     ∀ x : ℝ, Nat.primeCounting ⌊x⌋₊ = (1 + c x) * x / log x := by
   obtain ⟨f, hf, h⟩ := pi_asymp
@@ -959,19 +882,6 @@ lemma nth_prime_asymp : (fun n ↦ ((nth_prime n) : ℝ)) ~[atTop] (fun n ↦ n 
       <;> norm_cast<;> linarith [prime_nth_prime n |>.two_le]
   field
 
-@[blueprint
-  (title := "pn-asymptotic")
-  (statement := /--
-   One has
-    $$ p_n = (1+o(1)) n \log n$$
-  as $n \to \infty$.
-  -/)
-  (proof := /--
-    Use Corollary \ref{pi_alt} to show that $n=\pi(p_n)\sim p_n/\log p_n$
-    Taking logs gives $\log n \sim \log p_n - \log\log p_n \sim \log p_n$.
-    Multiplying these gives $p_n\sim n\log n$ from which the result follows.
-  -/)
-  (latexEnv := "proposition")]
 theorem pn_asymptotic : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1 : ℝ)) ∧
     ∀ n : ℕ, n > 1 → nth_prime n = (1 + c n) * n * log n := by
   let c : ℕ → ℝ := fun n ↦ (nth_prime n) / (n * log n) - 1
@@ -995,14 +905,6 @@ theorem pn_asymptotic : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1 : ℝ)) �
   norm_num
 
 
-@[blueprint
-  (title := "pn-pn-plus-one")
-  (statement := /--
-  We have $p_{n+1} - p_n = o(p_n)$
-    as $n \to \infty$.
-  -/)
-  (proof := /-- Easy consequence of preceding proposition. -/)
-  (latexEnv := "corollary")]
 theorem pn_pn_plus_one : ∃ c : ℕ → ℝ, c =o[atTop] (fun _ ↦ (1 : ℝ)) ∧
     ∀ n : ℕ, nth_prime (n + 1) - nth_prime n = (c n) * nth_prime n := by
   use (fun n => (nth_prime (n+1) - nth_prime n) / nth_prime n)
@@ -1545,13 +1447,6 @@ lemma tendsto_by_squeeze (ε : ℝ) (hε : ε > 0) :
       rw [Filter.tendsto_comp_val_Ioi_atTop (a := 1)]
       exact x_log_x_atTop
 
-@[blueprint
-  (title := "prime-between")
-  (statement := /-- For every $\eps>0$, there is a prime between $x$ and $(1+\eps)x$ for
-  all sufficiently large $x$. -/)
-  (proof := /-- Use Corollary \ref{pi_alt} to show that $\pi((1+\eps)x) - \pi(x)$ goes to infinity
-  as $x \to \infty$. -/)
-  (latexEnv := "corollary")]
 theorem prime_between {ε : ℝ} (hε : 0 < ε) :
     ∀ᶠ x : ℝ in atTop, ∃ p : ℕ, Nat.Prime p ∧ x < p ∧ p < (1 + ε) * x := by
   have squeeze := tendsto_by_squeeze (ε/2) (by linarith)
@@ -1575,18 +1470,6 @@ theorem prime_between {ε : ℝ} (hε : 0 < ε) :
   use p
 
 
-@[blueprint
-  "mun"
-  (statement := /-- We have $|\sum_{n \leq x} \frac{\mu(n)}{n}| \leq 1$. -/)
-  (proof := /--
-  From M\"obius inversion $1_{n=1} = \sum_{d|n} \mu(d)$ and summing we have
-    $$ 1 = \sum_{d \leq x} \mu(d) \lfloor \frac{x}{d} \rfloor$$
-    for any $x \geq 1$. Since $\lfloor \frac{x}{d} \rfloor = \frac{x}{d} - \epsilon_d$ with
-    $0 \leq \epsilon_d < 1$ and $\epsilon_x = 0$, we conclude that
-    $$ 1 ≥ x \sum_{d \leq x} \frac{\mu(d)}{d} - (x - 1)$$
-    and the claim follows.
-  -/)
-  (latexEnv := "proposition")]
 theorem sum_mobius_div_self_le (N : ℕ) : |∑ n ∈ range N, μ n / (n : ℚ)| ≤ 1 := by
   cases N with
   | zero => simp only [range_zero, sum_empty, abs_zero, zero_le_one]
@@ -1922,36 +1805,6 @@ lemma M_isLittleO' : M =o[atTop] id := by
   exact M_isLittleO
 
 
-@[blueprint
-  "mu-pnt"
-  (title := "M\\\"obius form of prime number theorem")
-  (statement := /-- We have $\sum_{n \leq x} \mu(n) = o(x)$. -/)
-  (proof := /--
-  From the Dirichlet convolution identity
-    $$ \mu(n) \log n = - \sum_{d|n} \mu(d) \Lambda(n/d)$$
-  and summing we obtain
-  $$ \sum_{n \leq x} \mu(n) \log n = - \sum_{d \leq x} \mu(d) \sum_{m \leq x/d} \Lambda(m).$$
-  For any $\eps>0$, we have from the prime number theorem that
-  $$ \sum_{m \leq x/d} \Lambda(m) = x/d + O(\eps x/d) + O_\eps(1)$$
-  (divide into cases depending on whether $x/d$ is large or small compared to $\eps$).
-  We conclude that
-  $$ \sum_{n \leq x} \mu(n) \log n
-    = - x \sum_{d \leq x} \frac{\mu(d)}{d} + O(\eps x \log x) + O_\eps(x).$$
-  Applying \eqref{mun} we conclude that
-  $$ \sum_{n \leq x} \mu(n) \log n = O(\eps x \log x) + O_\eps(x).$$
-  and hence
-  $$ \sum_{n \leq x} \mu(n) \log x
-    = O(\eps x \log x) + O_\eps(x) + O( \sum_{n \leq x} (\log x - \log n) ).$$
-  From Stirling's formula one has
-  $$  \sum_{n \leq x} (\log x - \log n) = O(x)$$
-  thus
-  $$ \sum_{n \leq x} \mu(n) \log x = O(\eps x \log x) + O_\eps(x)$$
-  and thus
-  $$ \sum_{n \leq x} \mu(n) = O(\eps x) + O_\eps(\frac{x}{\log x}).$$
-  Sending $\eps \to 0$ we obtain the claim.
-  -/)
-  (proofUses := ["WeakPNT", "mun"])
-  (latexEnv := "proposition")]
 theorem mu_pnt : (fun x : ℝ ↦ ∑ n ∈ range ⌊x⌋₊, μ n) =o[atTop] fun x ↦ x := by
   have h_moebius_sum : (fun x : ℝ => ∑ n ∈ Finset.range ⌊x⌋₊, (μ n : ℝ)) =o[atTop] (fun x : ℝ => x) := by
     have h_bound : (fun x : ℝ => ∑ n ∈ Finset.range ⌊x⌋₊, (μ n : ℝ)) =o[atTop] (fun x : ℝ => x) := by
@@ -2200,22 +2053,6 @@ lemma sum_mu_div_sq_isLittleO : (fun N : ℕ ↦ ∑ d ∈ Finset.Icc 1 (Nat.sqr
   filter_upwards [ Filter.eventually_ge_atTop N₀, Filter.eventually_ge_atTop N₁ ] with N hN₀' hN₁' using by rw [ Real.norm_of_nonneg ( Nat.cast_nonneg _ ) ] ; rw [ h_sum_rewrite ] ; exact le_trans ( hN₀ _ hN₀' ) ( by nlinarith [ hN₁ _ hN₁', show ( N : ℝ ) ≥ 0 by positivity ] ) ;
 
 
-@[blueprint
-  "lambda-pnt"
-  (statement := /-- We have $\sum_{n \leq x} \lambda(n) = o(x)$. -/)
-  (proof := /--
-  From the identity
-    $$ \lambda(n) = \sum_{d^2|n} \mu(n/d^2)$$
-  and summing, we have
-  $$ \sum_{n \leq x} \lambda(n) = \sum_{d \leq \sqrt{x}} \sum_{n \leq x/d^2} \mu(n).$$
-  For any $\eps>0$, we have from Proposition \ref{mu-pnt} that
-  $$ \sum_{n \leq x/d^2} \mu(n) = O(\eps x/d^2) + O_\eps(1)$$
-  and hence on summing in $d$
-  $$ \sum_{n \leq x} \lambda(n) = O(\eps x) + O_\eps(x^{1/2}).$$
-  Sending $\eps \to 0$ we obtain the claim.
-  -/)
-  (proofUses := ["mu-pnt"])
-  (latexEnv := "proposition")]
 theorem lambda_pnt : (fun x : ℝ ↦ ∑ n ∈ range ⌊x⌋₊, (-1)^(Ω n)) =o[atTop] fun x ↦ x := by
   have h_lambda_pnt : (fun N : ℕ => ∑ n ∈ Finset.range N, (-1 : ℝ) ^ (Nat.factorization n).sum (fun p k => k)) =o[Filter.atTop] (fun N : ℕ => (N : ℝ)) := by
     have h_lambda_pnt : (fun N : ℕ => ∑ n ∈ Finset.Icc 1 N, (-1 : ℝ) ^ (Nat.factorization n).sum (fun p k => k)) =o[Filter.atTop] (fun N : ℕ => (N : ℝ)) := by
@@ -2373,33 +2210,6 @@ lemma sum_mobius_div_approx (x : ℝ) (K : ℕ) (hK : 0 < K) (hx : 1 ≤ x) :
 
 
 
-@[blueprint
-  "mu-pnt-alt"
-  (title := "Alternate M\\\"obius form of prime number theorem")
-  (statement := /-- We have $\sum_{n \leq x} \mu(n)/n = o(1)$. -/)
-  (proof := /--
-  As in the proof of Theorem \ref{mun}, we have
-    $$ 1 = \sum_{d \leq x} \mu(d) \lfloor \frac{x}{d} \rfloor$$
-    $$ = x \sum_{d \leq x} \frac{\mu(d)}{d} - \sum_{d \leq x} \mu(d) \{ \frac{x}{d} \}$$
-  so it will suffice to show that
-  $$ \sum_{d \leq x} \mu(d) \{ \frac{x}{d} \} = o(x).$$
-  Let $N$  be a natural number.  It suffices to show that
-  $$ \sum_{d \leq x} \mu(d) \{ \frac{x}{d} \} = O(x/N).$$
-  if $x$ is large enough depending on $N$.
-  We can split the left-hand side as the sum of
-  $$ \sum_{d \leq x/N} \mu(d) \{ \frac{x}{d} \} $$
-  and
-  $$ \sum_{j=1}^{N-1} \sum_{x/(j+1) < d \leq x/j} \mu(d) (x/d - j).$$
-  The first term is clearly $O(x/N)$.  For the second term, we can use Theorem \ref{mu-pnt}
-  and summation by parts (using the fact that $x/d-j$ is monotone and bounded) to find that
-  $$ \sum_{x/(j+1) < d \leq x/j} \mu(d) (x/d - j) = o(x)$$
-  for any given $j$, so in particular
-  $$ \sum_{x/(j+1) < d \leq x/j} \mu(d) (x/d - j) = O(x/N^2)$$
-  for all $j=1,\dots,N-1$ if $x$ is large enough depending on $N$.
-  Summing all the bounds, we obtain the claim.
-  -/)
-  (proofUses := ["mu-pnt"])
-  (latexEnv := "proposition")]
 theorem mu_pnt_alt : (fun x : ℝ ↦ ∑ n ∈ range ⌊x⌋₊, (μ n : ℝ) / n) =o[atTop] fun _ ↦ (1 : ℝ) := by
   rw [Asymptotics.isLittleO_iff_tendsto'] <;> norm_num
   have h_sum_zero : Filter.Tendsto (fun x : ℝ => ∑ n ∈ Finset.Icc 1 ⌊x⌋₊, (μ n : ℝ) / n) Filter.atTop (nhds 0) := by
@@ -2434,22 +2244,7 @@ theorem mu_pnt_alt : (fun x : ℝ ↦ ∑ n ∈ range ⌊x⌋₊, (μ n : ℝ) /
   simpa [Finset.sum_range_succ] using h_sum_zero.sub (show Filter.Tendsto (fun x : ℝ => (μ ⌊x⌋₊ : ℝ) / ⌊x⌋₊) Filter.atTop (nhds 0) from tendsto_zero_iff_norm_tendsto_zero.mpr <| squeeze_zero (fun _ => by positivity) (fun x => by simpa using div_le_div_of_nonneg_right (show |(μ ⌊x⌋₊ : ℝ)| ≤ 1 from mod_cast by { unfold ArithmeticFunction.moebius; aesop }) <| Nat.cast_nonneg _) <| tendsto_inv_atTop_zero.comp <| tendsto_natCast_atTop_atTop.comp <| tendsto_nat_floor_atTop)
 
 
-blueprint_comment /--
-\section{Consequences of the PNT in arithmetic progressions}
--/
 
-@[blueprint
-  "chebyshev-asymptotic-pnt"
-  (title := "Prime number theorem in AP")
-  (statement := /--
-  If $a\ (q)$ is a primitive residue class, then one has
-  $$ \sum_{p \leq x: p = a\ (q)} \log p = \frac{x}{\phi(q)} + o(x).$$
-  -/)
-  (proof := /--
-  This is a routine modification of the proof of Theorem \ref{chebyshev-asymptotic}.
-  -/)
-  (proofUses := ["chebyshev-asymptotic"])
-  (latexEnv := "theorem")]
 theorem chebyshev_asymptotic_pnt
     {q : ℕ} {a : ℕ} (hq : q ≥ 1) (ha : a.Coprime q) (ha' : a < q) :
     (fun x ↦ ∑ p ∈ filter Nat.Prime (Iic ⌊x⌋₊), if p % q = a then log p else 0) ~[atTop]
@@ -2516,15 +2311,6 @@ theorem chebyshev_asymptotic_pnt
   · simpa only [mul_assoc] using
       (isLittleO_sqrt_mul_log.const_mul_left 2).trans_isTheta (isTheta_self_div_const htot_pos.ne')
 
-@[blueprint
-  (title := "Dirichlet's theorem")
-  (statement := /-- Any primitive residue class contains an infinite number of primes. -/)
-  (proof := /--
-  If this were not the case, then the sum $\sum_{p \leq x: p = a\ (q)} \log p$
-  would be bounded in $x$, contradicting Theorem \ref{chebyshev-asymptotic-pnt}.
-  -/)
-  (proofUses := ["chebyshev-asymptotic-pnt"])
-  (latexEnv := "corollary")]
 theorem dirichlet_thm {q : ℕ} {a : ℕ} (hq : q ≥ 1) (ha : Nat.Coprime a q) (ha' : a < q) :
     Infinite { p // p.Prime ∧ p % q = a } := by
   have : {p | p.Prime ∧ p % q = a}.Infinite := by
@@ -2538,19 +2324,5 @@ theorem dirichlet_thm {q : ℕ} {a : ℕ} (hq : q ≥ 1) (ha : Nat.Coprime a q) 
     exact this.mono fun p hp ↦ ⟨hp.1, by simpa [ModEq, mod_eq_of_lt ha'] using hp.2⟩
   exact Set.infinite_coe_iff.mpr this
 
-blueprint_comment /--
-\section{Consequences of the Chebotarev density theorem}
 
--/
 
-blueprint_comment /--
-\begin{lemma}[Cyclotomic Chebotarev]\label{Chebotarev-cyclic}  For any $a$ coprime to $m$,
-$$ \sum_{N \mathfrak{p} \leq x; N \mathfrak{p} = a\ (m)} \log N \mathfrak{p}  =
-\frac{1}{|G|} \sum_{N \mathfrak{p} \leq x} \log N \mathfrak{p}.$$
-\end{lemma}
--/
-
-blueprint_comment /--
-\begin{proof}\uses{Dedekind-PNT, WeakPNT-AP} This should follow from Lemma \ref{Dedekind-PNT} by a Fourier expansion.
-\end{proof}
--/

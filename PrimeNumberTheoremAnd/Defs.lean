@@ -1,4 +1,3 @@
-import Architect
 import PrimeNumberTheoremAnd.Fourier
 import Mathlib.NumberTheory.Chebyshev
 
@@ -29,13 +28,6 @@ def prime_gap_record (p g : ℕ) : Prop :=
     ∀ k, nth_prime k < p → nth_prime_gap k < g
 
 open Classical in
-@[blueprint
-  "first-gap-def"
-  (title := "First prime gap")
-  (statement := /--
-  $P(g)$ is the first prime $p_n$ for which the prime gap
-  $p_{n+1}-p_n$ is equal to $g$, or $0$ if no such gap
-  exists. -/)]
 noncomputable def first_gap (g : ℕ) : ℕ :=
   if h : ∃ n, nth_prime_gap n = g then
     nth_prime (Nat.find h)
@@ -52,63 +44,24 @@ def HasPrimeInInterval (x h : ℝ) : Prop :=
 def HasPrimeInInterval.log_thm (X₀ : ℝ) (k : ℝ) :=
   ∀ x ≥ X₀, HasPrimeInInterval x (x / (log x) ^ k)
 
-@[blueprint
-  "pi-def"
-  (title := "pi")
-  (statement := /--
-  $\pi(x)$ is the number of primes less than or equal to
-  $x$. -/)]
 noncomputable def pi (x : ℝ) : ℝ :=
   Nat.primeCounting ⌊x⌋₊
 
-@[blueprint
-  "pi-star-def"
-  (title := "pi")
-  (statement := /--
-  $\pi^*(x)$ is the sum of $\Lambda(n)/n$ for $n$ up to
-  $x$. -/)]
 noncomputable def pi_star (x : ℝ) : ℝ :=
   ∑ n ∈ Finset.Ioc 1 ⌊x⌋₊, (Λ n : ℝ) / n
 
-@[blueprint
-  "li-def"
-  (title := "li and Li")
-  (statement := /--
-  $\mathrm{li}(x) = \int_0^x \frac{dt}{\log t}$ (in the
-  principal value sense) and
-  $\mathrm{Li}(x) = \int_2^x \frac{dt}{\log t}$. -/)]
 noncomputable def li (x : ℝ) : ℝ :=
   lim ((𝓝[>] (0 : ℝ)).map (fun ε ↦
     ∫ t in Set.diff (Set.Ioc 0 x) (Set.Ioo (1 - ε) (1 + ε)),
       1 / log t))
 
-@[blueprint "li-def"]
 noncomputable def Li (x : ℝ) : ℝ := ∫ t in 2..x, 1 / log t
 
-@[blueprint
-  "Epsi-def"
-  (title := "Equation (2) of FKS2")
-  (statement := /-- $E_\psi(x) = |\psi(x) - x| / x$ -/)]
 noncomputable def Eψ (x : ℝ) : ℝ := |ψ x - x| / x
 
 noncomputable def admissible_bound (A B C R : ℝ) (x : ℝ) :=
   A * (log x / R) ^ B * exp (-C * (log x / R) ^ ((1 : ℝ) / (2 : ℝ)))
 
-@[blueprint
-  "classical-bound-psi"
-  (title := "Definitions 1, 5, FKS2")
-  (statement := /--
-  We say that $E_\psi$ satisfies a \emph{classical bound}
-  with parameters $A, B, C, R, x_0$ if for all
-  $x \geq x_0$ we have
-  \[ E_\psi(x) \leq A \left(\frac{\log x}{R}\right)^B
-     \exp\left(-C \left(\frac{\log x}{R}\right)^{1/2}
-     \right). \]
-  We say that it obeys a \emph{numerical bound} with
-  parameter $\varepsilon(x_0)$ if for all $x \geq x_0$
-  we have
-  \[ E_\psi(x) \leq \varepsilon(x_0). \]
-  -/)]
 def Eψ.classicalBound (A B C R x₀ : ℝ) : Prop :=
   ∀ x ≥ x₀, Eψ x ≤ admissible_bound A B C R x
 
@@ -117,60 +70,20 @@ def Eψ.bound (ε x₀ : ℝ) : Prop := ∀ x ≥ x₀, Eψ x ≤ ε
 def Eψ.numericalBound (x₀ : ℝ) (ε : ℝ → ℝ) : Prop :=
   Eψ.bound (ε x₀) x₀
 
-@[blueprint
-  "Epi-def"
-  (title := "Equation (1) of FKS2")
-  (statement := /--
-  $E_\pi(x) = |\pi(x) - \mathrm{Li}(x)| /
-  \mathrm{Li}(x)$. -/)]
 noncomputable def Eπ (x : ℝ) : ℝ :=
   |pi x - Li x| / (x / log x)
 
 noncomputable def Eπ_star (x : ℝ) : ℝ :=
   |pi_star x - Li x| / (x / log x)
 
-@[blueprint
-  "Etheta-def"
-  (title := "Equation (2) of FKS2")
-  (statement := /--
-  $E_\theta(x) = |\theta(x) - x| / x$ -/)]
 noncomputable def Eθ (x : ℝ) : ℝ := |θ x - x| / x
 
-@[blueprint
-  "classical-bound-theta"
-  (title := "Definitions 1, 5, FKS2")
-  (statement := /--
-  We say that $E_\theta$ satisfies a \emph{classical bound}
-  with parameters $A, B, C, R, x_0$ if for all
-  $x \geq x_0$ we have
-  \[ E_\theta(x) \leq A \left(\frac{\log x}{R}\right)^B
-     \exp\left(-C \left(\frac{\log x}{R}\right)^{1/2}
-     \right). \]
-  We say that it obeys a \emph{numerical bound} with
-  parameter $\varepsilon(x_0)$ if for all $x \geq x_0$
-  we have
-  \[ E_\theta(x) \leq \varepsilon(x_0). \]
-  -/)]
 def Eθ.classicalBound (A B C R x₀ : ℝ) : Prop :=
   ∀ x ≥ x₀, Eθ x ≤ admissible_bound A B C R x
 
 def Eθ.numericalBound (x₀ : ℝ) (ε : ℝ → ℝ) : Prop :=
   ∀ x ≥ x₀, Eθ x ≤ ε x₀
 
-@[blueprint "classical-bound-pi"
-  (title := "Definitions 1, 5, FKS2")
-  (statement := /--
-  We say that $E_\pi$ satisfies a \emph{classical bound}
-  with parameters $A, B, C, R, x_0$ if for all
-  $x \geq x_0$ we have
-  \[ E_\pi(x) \leq A \left(\frac{\log x}{R}\right)^B
-     \exp\left(-C \left(\frac{\log x}{R}\right)^{1/2}
-     \right). \]
-  We say that it obeys a \emph{numerical bound} with
-  parameter $\varepsilon(x_0)$ if for all $x \geq x_0$
-  we have
-  \[ E_\pi(x) \leq \varepsilon(x_0). \]
-  -/)]
 def Eπ.classicalBound (A B C R x₀ : ℝ) : Prop :=
   ∀ x ≥ x₀, Eπ x ≤ admissible_bound A B C R x
 
@@ -196,16 +109,6 @@ def Eπ_star.vinogradovBound (A B C x₀ : ℝ) : Prop :=
   ∀ x ≥ x₀, Eπ_star x ≤
     A * (log x) ^ B * exp (-C * (log x) ^ (3 / 5) / (log (log x)) ^ (1 / 5))
 
-@[blueprint
-  "admissible-bound-monotone"
-  (title := "Admissible bound decreasing for large x")
-  (statement := /--
-  If $A,B,C,R > 0$ then the classical bound is monotone
-  decreasing for $x \geq \exp( R (2B/C)^2 )$. -/)
-  (proof := /-- Differentiate the bound and check the
-  sign. -/)
-  (latexEnv := "lemma")
-  (discussion := 900)]
 lemma admissible_bound.mono
     (A B C R : ℝ) (hA : 0 < A) (hB : 0 < B)
     (hC : 0 < C) (hR : 0 < R) :
@@ -256,16 +159,6 @@ lemma admissible_bound.mono
       div_le_iff₀ ((div_pos (by positivity) hC).trans ht)]
     linarith [(div_lt_iff₀ hC).mp ht, mul_comm C t]
 
-@[blueprint
-  "classical-to-numeric"
-  (title := "Classic bound implies numerical bound")
-  (statement := /--
-  A classical bound for $x \geq x_0$ implies a numerical
-  bound for $x \geq \max(x_0,
-  \exp( R (2B/C)^2  ))$. -/)
-  (proof := /-- Immediate from previous lemma -/)
-  (latexEnv := "lemma")
-  (discussion := 901)]
 lemma Eψ.classicalBound.to_numericalBound
     (A B C R x₀ x₁ : ℝ) (hA : 0 < A) (hB : 0 < B)
     (hC : 0 < C) (hR : 0 < R)
@@ -278,7 +171,6 @@ lemma Eψ.classicalBound.to_numericalBound
         (Set.mem_Ici.mpr (le_trans (le_max_right ..) hx₁))
         (Set.mem_Ici.mpr (le_trans (le_max_right ..) (le_trans hx₁ hx))) hx)
 
-@[blueprint "classical-to-numeric"]
 lemma Eθ.classicalBound.to_numericalBound
     (A B C R x₀ x₁ : ℝ) (hA : 0 < A) (hB : 0 < B)
     (hC : 0 < C) (hR : 0 < R)
@@ -291,7 +183,6 @@ lemma Eθ.classicalBound.to_numericalBound
         (Set.mem_Ici.mpr (le_trans (le_max_right ..) hx₁))
         (Set.mem_Ici.mpr (le_trans (le_max_right ..) (le_trans hx₁ hx))) hx)
 
-@[blueprint "classical-to-numeric"]
 lemma Eπ.classicalBound.to_numericalBound
     (A B C R x₀ x₁ : ℝ) (hA : 0 < A) (hB : 0 < B)
     (hC : 0 < C) (hR : 0 < R)

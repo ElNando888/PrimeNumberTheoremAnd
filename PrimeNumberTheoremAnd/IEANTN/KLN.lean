@@ -1,14 +1,7 @@
-import Architect
 import PrimeNumberTheoremAnd.IEANTN.ZetaDefinitions
 import Mathlib.NumberTheory.Harmonic.EulerMascheroni
 
-blueprint_comment /--
-\section{The estimates of Kadiri, Lumley, and Ng}
--/
 
-blueprint_comment /--
-In this section we establish the primary results of \cite{KLN}.
--/
 
 namespace KLN
 open Real

@@ -1,4 +1,3 @@
-import Architect
 import Mathlib.Topology.Order.Basic
 import Mathlib.NumberTheory.PrimeCounting
 import PrimeNumberTheoremAnd.Consequences
@@ -10,40 +9,14 @@ import PrimeNumberTheoremAnd.EulerMascheroniBounds
 import PrimeNumberTheoremAnd.IEANTN.LnFactorialSeries
 
 
-blueprint_comment /--
-\section{Definitions}
--/
 
-blueprint_comment /--
-In this section we define the basic types of secondary estimates
-we will work with in the project.
--/
 
 open Real Finset Topology
 
 
-@[blueprint
-  "log_upper"
-  (title := "Log upper bound")
-  (statement := /--
-    For $t > -1$, one has $\log (1+t) \leq t$. -/)
-  (proof := /-- This follows from the mean value theorem. -/)
-  (latexEnv := "sublemma")]
 theorem log_le (t : ℝ) (ht : t > -1) : log (1 + t) ≤ t :=
   (Real.log_le_sub_one_of_pos (neg_lt_iff_pos_add'.mp ht)).trans add_tsub_le_left
 
-@[blueprint
-  "log_lower_1"
-  (title := "First log lower bound")
-  (statement := /--
-    For $t \geq 0$, one has
-    $t - \frac{t^2}{2} \leq \log(1+t)$. -/)
-  (proof := /--
-    Use Taylor's theorem with remainder and the fact that
-    the second derivative of $\log(1+t)$ is at most $1$
-    for $t \geq 0$. -/)
-  (latexEnv := "sublemma")
-  (discussion := 765)]
 theorem log_ge {t : ℝ} (ht : 0 ≤ t) : t - t ^ 2 / 2 ≤ log (1 + t) := by
   rcases ht.eq_or_lt with rfl | ht
   · simp
@@ -67,15 +40,6 @@ theorem log_ge {t : ℝ} (ht : 0 ≤ t) : t - t ^ 2 / 2 ≤ log (1 + t) := by
   nlinarith [hf_deriv_pos c hc₁,
     mul_div_cancel₀ (log (1 + t) - (t - t ^ 2 / 2)) (by positivity)]
 
-@[blueprint
-  "log_lower_2"
-  (title := "Second log lower bound")
-  (statement := /--
-    For $0 \leq t \leq t_0 < 1$, one has
-    $\frac{t}{t_0} \log (1-t_0) \leq \log(1-t)$. -/)
-  (proof := /-- Use concavity of log. -/)
-  (latexEnv := "sublemma")
-  (discussion := 766)]
 theorem log_ge' {t t₀ : ℝ} (ht : 0 ≤ t) (ht0 : t ≤ t₀) (ht0' : t₀ < 1) :
     (t / t₀) * log (1 - t₀) ≤ log (1 - t) := by
   rcases ht.eq_or_lt with rfl | ht
@@ -88,25 +52,6 @@ theorem log_ge' {t t₀ : ℝ} (ht : 0 ≤ t) (ht0 : t ≤ t₀) (ht0' : t₀ < 
   convert this (a := t / t₀) (b := 1 - t / t₀) (by bound) (by bound) (by ring) |>.le using 2
   field [show t₀ ≠ 0 by linarith]
 
-@[blueprint
-  "symm_inv_log"
-  (title := "Symmetrization of inverse log")
-  (statement := /--
-    For $0 < t \leq 1/2$, one has
-    $| \frac{1}{\log(1+t)} + \frac{1}{\log(1-t)}|
-    \leq \frac{16\log(4/3)}{3}$. -/)
-  (proof := /--
-    The expression can be written as
-    $\frac{|\log(1-t^2)|}{|\log(1-t)| |\log(1+t)|}$.
-    Now use the previous upper and lower bounds,
-    noting that $t^2 \leq 1/4$.
-    NOTE: this gives the slightly weaker bound of
-    $16 \log(4/3) / 3$, but this can suffice for
-    applications. The sharp bound would require showing
-    that the left-hand side is monotone in $t$, which
-    looks true but not so easy to verify. -/)
-  (latexEnv := "sublemma")
-  (discussion := 767)]
 theorem symm_inv_log (t : ℝ) (ht : 0 < t) (ht' : t ≤ 1 / 2) :
     |1 / log (1 + t) + 1 / log (1 - t)| ≤ 16 * log (4 / 3) / 3 := by
   have log_add_ne_zero : log (1 + t) ≠ 0 := by
@@ -163,14 +108,6 @@ theorem symm_inv_log (t : ℝ) (ht : 0 < t) (ht' : t ≤ 1 / 2) :
       rw [(by field : (3 : ℝ) / 4 = (4 / 3)⁻¹), log_inv]
       field
 
-@[blueprint
-  "li_minus_Li"
-  (title := "li minus Li")
-  (statement := /-- $\li(x) - \Li(x) = \li(2)$. -/)
-  (proof := /--
-    This follows from the previous estimate. -/)
-  (latexEnv := "remark")
-  (discussion := 758)]
 theorem li.sub_Li (x : ℝ) (h2x : 2 ≤ x) : li x - Li x = li 2 := by
   have : Filter.Tendsto (fun ε => ∫ t in Set.Ioc 0 x \ Set.Ioo (1 - ε) (1 + ε), 1 / log t)
       (𝓝[>] 0) (nhds (Li2Bounds.li2_symmetric + Li x)) := by
@@ -198,15 +135,6 @@ theorem li.sub_Li (x : ℝ) (h2x : 2 ≤ x) : li x - Li x = li 2 := by
   simp only [add_sub_cancel_right]
   rfl
 
-@[blueprint
-  "Ramanujan-Soldner-constant"
-  (title := "Ramanujan-Soldner constant")
-  (statement := /-- $\li(2) = 1.0451\dots$. -/)
-  (proof := /--
-    Symmetrize the integral and use and some
-    numerical integration. -/)
-  (latexEnv := "lemma")
-  (discussion := 759)]
 
 theorem li.two_approx : li 2 ∈ Set.Icc 1.0451 1.0452 := by
   rw [li_eq_eulerMascheroni_add_log_log_add_tsum (show (1 : ℝ) < 2 by norm_num)]
@@ -224,12 +152,6 @@ The tighter bounds in li.two_approx require more precise
 numerical integration.
 Proved via LeanCert numerical integration
 in Li2Bounds.lean. -/
-@[blueprint
-  "li2-bounds-weak"
-  (title := "Weak bounds on li(2)")
-  (statement := /-- $1.039 \leq \li(2) \leq 1.06$. -/)
-  (latexEnv := "sublemma")
-  (discussion := 759)]
 theorem li.two_approx_weak : li 2 ∈ Set.Icc 1.039 1.06 := by
   rw [li_eq_Li2Bounds_li]
   exact Li2Bounds.li_two_approx_weak_proof
@@ -237,14 +159,6 @@ theorem li.two_approx_weak : li 2 ∈ Set.Icc 1.039 1.06 := by
 /-- The symmetric form equals the principal value li(2).
 This connects the absolutely convergent symmetric integral
 ∫₀¹ g(t) dt to the principal value definition of li(2). -/
-@[blueprint
-  "li2-symmetric-eq"
-  (title := "Symmetric form equals principal value")
-  (statement := /--
-    $\int_0^1 \left(\frac{1}{\log(1+t)}
-    + \frac{1}{\log(1-t)}\right) dt = \mathrm{li}(2)$ -/)
-  (latexEnv := "sublemma")
-  (discussion := 764)]
 theorem li2_symmetric_eq_li2 : Li2Bounds.li2_symmetric = li 2 := by
   rw [li_eq_Li2Bounds_li]
   exact Li2Bounds.li2_symmetric_eq_li2

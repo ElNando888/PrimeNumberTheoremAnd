@@ -3,13 +3,6 @@ import LeanCert.Engine.ChebyshevTheta
 import PrimeNumberTheoremAnd.IEANTN.SecondarySummary
 import PrimeNumberTheoremAnd.IEANTN.Ramanujan.RamanujanCalculations
 
-blueprint_comment /--
-\section{Ramanujan's inequality}\label{ramanujan-sec}
-
-Use of prime number theorems to establish Ramanujan's inequality
-$$\pi(x)^2 < \frac{e x}{\log x} \pi\Big(\frac{x}{e}\Big)$$
-for sufficiently large $x$, following \cite{dudek-platt}.
--/
 
 namespace Ramanujan
 
@@ -22,24 +15,6 @@ noncomputable def ε' (m x : ℝ) : ℝ := 206 + m + 364 / log x + 381 / (log x)
 
 -- noncomputable def x' (m M x : ℝ) : ℝ := exp (ε M x - ε' m x)
 
-@[blueprint
-  "ramanujan-criterion-1"
-  (title := "Criterion for Ramanujan's inequality, substep 1")
-  (statement := /--
-Let $M_a \in \mathbb{R}$  and suppose that for $x>x_a$ we have
-$$ \pi(x) < x \sum_{k=0}^{4} \frac{k!}{\log^{k+1}x}+\frac{M_a x}{\log^6 x}.$$
-Then for $x > x_a$ we have
-\begin{equation} \label{pipi}
-\pi^2(x)  <  x^2 \Big\{ \frac{1}{\log^2 x}+ \frac{2}{\log^3 x}+ \frac{5}{\log^4 x}+ \frac{16}{\log^5 x}+ \frac{64}{\log^6 x} + \frac{\epsilon_{M_a}(x)}{\log^7 x} \Big\}
-\end{equation}
-%
-where
-$$\epsilon_{M_a} (x) = 72 + 2 M_a + \frac{2M_a+132}{\log x} + \frac{4M_a+288}{\log^2 x} + \frac{12 M_a+576}{\log^3 x}+\frac{48M_a}{\log^4 x} + \frac{M_a^2}{\log^5 x}.$$
-(cf. \cite[Lemma 2.1]{dudek-platt})
--/)
-  (proof := /-- Direct calculation -/)
-  (latexEnv := "sublemma")
-  (discussion := 983)]
 theorem sq_pi_lt (M_a x_a : ℝ) (hupper : ∀ x > x_a, pi x < x * ∑ k ∈ Finset.range 5, (k.factorial / log x ^ (k + 1)) + (M_a * x / log x ^ 6)) :
     ∀ x > x_a, pi x ^ 2 < x ^ 2 * (1 / log x ^ 2 + 2 / log x ^ 3 + 5 / log x ^ 4 + 16 / log x ^ 5 + 64 / log x ^ 6 + ε M_a x / log x ^ 7) := by
   intro x hx
@@ -393,28 +368,6 @@ theorem ex_pi_gt_nonneg
       ≤ x ^ 2 * ((1 / log x) * (S + m_a / (log x - 1) ^ 6)) :=
     mul_le_mul_of_nonneg_left hcore65 (sq_nonneg x)
   grind
-@[blueprint
-  "ramanujan-criterion-2"
-  (title := "Criterion for Ramanujan's inequality, substep 2")
-  (statement := /--
-Let $m_a \in \mathbb{R}$  and suppose that for $x>x_a$ we have
-$$\pi(x) > x \sum_{k=0}^{4} \frac{k!}{\log^{k+1}x}+\frac{m_a x}{\log^6 x}.$$
-Then for $x > e x_a$ we have
-$$\frac{ex}{\log x} \pi \Big(\frac{x}{e} \Big) > x^2 \Big\{ \frac{1}{\log^2 x}+ \frac{2}{\log^3 x}+ \frac{5}{\log^4 x}+ \frac{16}{\log^5 x}+ \frac{64}{\log^6 x} + \frac{\epsilon'_{m_a}(x)}{\log^7 x} \Big\},$$
-where
-$$\epsilon'_{m_a}(x) = 206+m_a+\frac{364}{\log x} + \frac{381}{\log^2 x}+\frac{238}{\log^3 x} + \frac{97}{\log^4 x} + \frac{30}{\log^5 x} + \frac{8}{\log^6 x}.$$
--/)
-  (proof := /-- We have
-$$\frac{ex}{\log x} \pi \Big(\frac{x}{e} \Big) > \frac{x^2}{\log x} \Big( \sum_{k=0}^{4} \frac{k!}{(\log x - 1)^{k+1}}\Big) + \frac{m_a x}{(\log x-1)^{6}}$$
-Substituting
-\begin{eqnarray*}
-\frac{1}{(\log x - 1)^{k+1}} & = & \frac{1}{\log^{k+1} x} \Big(1+ \frac{1}{\log x} + \frac{1}{\log^2 x} + \frac{1}{\log^3 x} + \cdots \Big)^{k+1} \\ \\
-& > & \frac{1}{\log^{k+1} x} \Big(1+ \frac{1}{\log x}+ \cdots + \frac{1}{\log^{5-k} x} \Big)^{k+1}
-\end{eqnarray*}
-we obtain the claim.
-  -/)
-  (latexEnv := "sublemma")
-  (discussion := 984)]
 theorem ex_pi_gt (m_a x_a : ℝ) (hx_a : 1 < x_a)
     (hlower : ∀ x > x_a, x * ∑ k ∈ Finset.range 5, (k.factorial / log x ^ (k + 1)) + (m_a * x / log x ^ 6) < pi x) :
     ∀ x > exp 1 * x_a,
@@ -428,26 +381,6 @@ theorem ex_pi_gt (m_a x_a : ℝ) (hx_a : 1 < x_a)
   · intro x hx
     simpa [εlower, hm] using ex_pi_gt_neg m_a x_a (le_of_not_ge hm) hx_a hlower x hx
 
-@[blueprint
-  "ramanujan-criterion"
-  (title := "Criterion for Ramanujan's inequality")
-  (statement := /-- \cite[Lemma 2.1]{dudek-platt}
-Let $m_a, M_a \in \mathbb{R}$  and suppose that for $x>x_a$ we have
-$$ x \sum_{k=0}^{4} \frac{k!}{\log^{k+1}x}+ \frac{m_a x}{\log^6 x} < \pi(x)$$
-
-and for $x > ex_a$ one has
-$$ \pi(x) < x \sum_{k=0}^{4} \frac{k!}{\log^{k+1}x}+\frac{M_a x}{\log^6 x}.$$
-%
-Then Ramanujan's inequality is true for $x > x_0$ if
-
-$$x_0 ≥ e x_{a}$$
-and
-$$ \epsilon_{M_a} (x_0) - \epsilon'_{m_a}(x_0) < \log x.$$
- -/)
-  (proof := /-- Combine the previous two sublemmas.
- -/)
-  (latexEnv := "proposition")
-  (discussion := 985)]
 theorem criterion (mₐ Mₐ xₐ x₀ : ℝ)
   (hxₐ : 1 < xₐ)
   (hlower : ∀ x > xₐ, x * ∑ k ∈ Finset.range 5, (k.factorial / log x ^ (k + 1)) + (mₐ * x / log x ^ 6) < pi x)
@@ -501,19 +434,6 @@ open LeanCert.Engine.ChebyshevTheta in
 private theorem thetaCheck599 :
     checkThetaRelErrorReal 599 (65 / 1000) 20 = true := by native_decide
 
-@[blueprint
-  "ramanujan-pibound-1"
-  (title := "Error estimate for theta, range 1 ")
-  (statement := /-- For $2 \leq x < 599$ we have
-$$E_\theta(x) \leq 1 - \frac{\log 2}{3}.$$
-(cf. \cite[(18)]{PT2021})-/)
-  (proof := /-- For $x \in [2, 3)$ we have $\theta(x) = \log 2$, so
-$E_\theta(x) = 1 - \log 2 / x < 1 - \log 2 / 3$ since $x < 3$.
-For $x \in [3, 599)$ we use the LeanCert ChebyshevTheta engine:
-\texttt{checkAllThetaRelErrorReal 3 599 (768/1000) 20} via \texttt{native\_decide}
-gives $|\theta(x) - x| \leq 0.768 x$, hence $E_\theta(x) \leq 0.768 \leq 1 - \log 2 / 3$. -/)
-  (latexEnv := "sublemma")
-  (discussion := 990)]
 theorem pi_bound_1 (x : ℝ) (hx : x ∈ Set.Ico 2 599) :
     Eθ x ≤ 1 - log 2 / 3 := by
   obtain ⟨hx2, hx599⟩ := hx
@@ -550,14 +470,6 @@ theorem pi_bound_1 (x : ℝ) (hx : x ∈ Set.Ico 2 599) :
           rw [this]
           linarith [log_two_lt_d9]
 
-@[blueprint
-  "ramanujan-pibound-2"
-  (title := "Error estimate for theta, range 2 ")
-  (statement := /-- For $599 < x \leq \exp(58)$ we have
-$$E_\theta(x) \leq \frac{\log^2 x}{8\pi\sqrt{x}}.$$
-(cf. \cite[(18)]{PT2021})-/)
-  (proof := /-- This is \cite[Lemma 6]{PT2021}. -/)
-  (latexEnv := "sublemma")]
 theorem pi_bound_2 (x : ℝ) (hx : x ∈ Set.Ico 599 (exp 58)) :
     Eθ x ≤ log x ^ 2 / (8 * π * sqrt x) := by
   obtain ⟨hx_lo, hx_hi⟩ := hx
@@ -661,15 +573,6 @@ theorem pi_bound_2 (x : ℝ) (hx : x ∈ Set.Ico 599 (exp 58)) :
         nlinarith [exp_pos (6 : ℝ), exp_pos (39 / 100 : ℝ)])
     nlinarith [Real.pi_pos, sqrt_nonneg (599 : ℝ), sq_nonneg (log (599 : ℝ) - 6.39)]
 
-@[blueprint
-  "ramanujan-pibound-3"
-  (title := "Error estimate for theta, range 3")
-  (statement := /-- For $\exp(58) < x < \exp(1169)$ we have
-$$E_\theta(x) \leq \sqrt\frac{8}{17\pi}\left(\frac{\log x}{6.455}\right)^{\frac{1}{4}}\exp\left(-\sqrt{\frac{\log x}{6.455}}\right).$$
-(cf. \cite[(18)]{PT2021})-/)
-  (proof := /-- This follows from Theorem \ref{trudgian:theorem 1-theta}. -/)
-  (latexEnv := "sublemma")
-  (discussion := 991)]
 theorem pi_bound_3 (x : ℝ) (hx : x ∈ Set.Ico (exp 58) (exp 1169)) :
     Eθ x ≤ sqrt (8 / (17 * π)) * (log x / 6.455) ^ (1 / 4 : ℝ) * exp (-sqrt (log x / 6.455)) := by
   set M₄₃ : Fin 5 → ℝ := ![8.6315e-7, 3.7979e-5, 2.4334e-2, 5.7184e1, 1.3441e5]
@@ -775,15 +678,6 @@ theorem pi_bound_3 (x : ℝ) (hx : x ∈ Set.Ico (exp 58) (exp 1169)) :
   exact le_trans (le_trans (le_trans hE hleft_const) hconst_cmp) (by
     simpa using hprod3)
 
-@[blueprint
-  "ramanujan-pibound-4"
-  (title := "Error estimate for theta, range 4")
-  (statement := /-- For $\exp(1169) \leq x < \exp(2000)$ we have
-$$E_\theta(x) \leq 462.0\left(\frac{\log x}{5.573412}\right)^{1.52}\exp\left(-1.89\sqrt{\frac{\log x}{5.573412}}\right).$$
-(cf. \cite[(18)]{PT2021})-/)
-  (proof := /-- This follows from Corollary \ref{pt_cor_1}. -/)
-  (latexEnv := "sublemma")
-  (discussion := 992)]
 theorem pi_bound_4 (x : ℝ) (hx : x ∈ Set.Ico (exp 1169) (exp 2000)) :
     Eθ x ≤ 462.0 * (log x / 5.573412) ^ (1.52 : ℝ) * exp (-1.89 * sqrt (log x / 5.573412)) := by
   have h3 : exp 1000 ≤ x := by
@@ -797,15 +691,6 @@ theorem pi_bound_4 (x : ℝ) (hx : x ∈ Set.Ico (exp 1169) (exp 2000)) :
   have h8 : 461.9 + 0.1 = (462.0 : ℝ) := by norm_num
   simpa [h8, admissible_bound, sqrt_eq_rpow] using h7
 
-@[blueprint
-  "ramanujan-pibound-5"
-  (title := "Error estimate for theta, range 5 ")
-  (statement := /-- For $\exp(2000) \leq x < \exp(3000)$ we have
-$$E_\theta(x) \leq 411.5\left(\frac{\log x}{5.573412}\right)^{1.52}\exp\left(-1.89\sqrt{\frac{\log x}{5.573412}}\right).$$
-(cf. \cite[(18)]{PT2021})-/)
-  (proof := /-- This follows from Corollary \ref{pt_cor_1}. -/)
-  (latexEnv := "sublemma")
-  (discussion := 993)]
 theorem pi_bound_5 (x : ℝ) (hx : x ∈ Set.Ico (exp 2000) (exp 3000)) :
     Eθ x ≤ 411.5 * (log x / 5.573412) ^ (1.52 : ℝ) * exp (-1.89 * sqrt (log x / 5.573412)) := by
   have h7 : Eθ x ≤ admissible_bound (411.4 + 0.1) (1.52 : ℝ) (1.89 : ℝ) (5.573412 : ℝ) x :=
@@ -813,15 +698,6 @@ theorem pi_bound_5 (x : ℝ) (hx : x ∈ Set.Ico (exp 2000) (exp 3000)) :
   have h8 : 411.4 + 0.1 = (411.5 : ℝ) := by norm_num
   simpa [h8, admissible_bound, sqrt_eq_rpow] using h7
 
-@[blueprint
-  "ramanujan-pibound-6"
-  (title := "Error estimate for theta, range 6 ")
-  (statement := /-- For $x > \exp(3000)$ we have
-$$E_\theta(x) \leq 379.7\left(\frac{\log x}{5.573412}\right)^{1.52}\exp\left(-1.89\sqrt{\frac{\log x}{5.573412}}\right).$$
-(cf. \cite[(18)]{PT2021})-/)
-  (proof := /-- This follows from Corollary \ref{pt_cor_1}. -/)
-  (latexEnv := "sublemma")
-  (discussion := 1094)]
 theorem pi_bound_6 (x : ℝ) (hx : exp 3000 ≤ x) :
     Eθ x ≤ 379.7 * (log x / 5.573412) ^ (1.52 : ℝ) * exp (-1.89 * sqrt (log x / 5.573412)) := by
   have h7 : Eθ x ≤ admissible_bound (379.6 + 0.1) (1.52 : ℝ) (1.89 : ℝ) (5.573412 : ℝ) x :=
@@ -838,14 +714,6 @@ noncomputable def a (x : ℝ) : ℝ := (log x)^5 * (
   else if x ∈ Set.Ico (exp 2000) (exp 3000) then 411.5 * (log x / 5.573412) ^ (1.52 : ℝ) * exp (-1.89 * sqrt (log x / 5.573412))
   else 379.7 * (log x / 5.573412) ^ (1.52 : ℝ) * exp (-1.89 * sqrt (log x / 5.573412)))
 
-@[blueprint
-  "pt_eq_18"
-  (title := "Equation (18) of Platt-Trudgian")
-  (statement := /-- For $x \geq 2$ we have
-$$E_\theta(x) (\log x)^5 \leq a(x).$$-/)
-  (proof := /-- This follows from the previous five sublemmas. -/)
-  (latexEnv := "proposition")
-  (discussion := 994)]
 theorem pi_bound (x : ℝ) (hx : 2 ≤ x) :
     Eθ x * ( log x)^5 ≤ a x := by
   set b : ℝ :=
@@ -901,13 +769,6 @@ private lemma pi_bound_abs_mul (x : ℝ) (hx : 2 ≤ x) :
 
 noncomputable def xₐ : ℝ := exp 3914
 
-@[blueprint
-  "a-mono"
-  (title := "Monotonicity of a(x)")
-  (statement := /-- The function $a(x)$ is nonincreasing for $x \geq x_a$. -/)
-  (proof := /-- Follows from Lemma \ref{admissible-bound-monotone}. -/)
-  (latexEnv := "lemma")
-  (discussion := 995)]
 theorem a_mono : AntitoneOn a (Set.Ici xₐ) := by
   intro x hx y hy hxy
   simp only [Set.mem_Ici] at hx hy
@@ -1710,13 +1571,6 @@ private lemma pi_upper_specific_main_le
           + (120 + a exₐ) * x / log x ^ 6
           + (∫ t in Set.Icc 2 x, (720 + a t) / log t ^ 7) := by
       simp [G, add_assoc]
-@[blueprint
-  "pi-upper-specific"
-  (title := "Specific upper bound on pi")
-  (statement := /-- For $x > ex_a$, $$ \pi(x) < x \sum_{k=0}^{4} \frac{k!}{\log^{k+1}x}+\frac{M_a x}{\log^6 x}.$$. -/)
-  (proof := /-- This follows from the previous lemmas and calculations, including Lemma \ref{log-7-int-bound}. -/)
-  (latexEnv := "lemma")
-  (discussion := 996)]
 theorem pi_upper_specific : ∀ x > exₐ, pi x < x * ∑ k ∈ Finset.range 5, (k.factorial / log x ^ (k + 1)) + ((Mₐ exₐ) * x / log x ^ 6) := by
   intro x hx
   have h2xa : 2 ≤ xₐ := two_le_xₐ
@@ -2224,13 +2078,6 @@ private theorem mₐ_xₐ_ge_neg1194 : (-1194 : ℝ) ≤ mₐ xₐ := by
   grind [Calculations.m_lower_from_bounds, mₐ, a_xa_upper, C₁_le_one, C₃_le_one, B_le_small]
 
 
-@[blueprint
-  "pi-lower-specific"
-  (title := "Specific lower bound on pi")
-  (statement := /-- For $x > x_a$, $$ \pi(x) > x \sum_{k=0}^{4} \frac{k!}{\log^{k+1}x}+\frac{m_a x}{\log^6 x}.$$. -/)
-  (proof := /-- This follows from the previous lemmas and calculations, including Lemma \ref{log-7-int-bound}. -/)
-  (latexEnv := "lemma")
-  (discussion := 997)]
 theorem pi_lower_specific : ∀ x > xₐ, pi x > x * ∑ k ∈ Finset.range 5, (k.factorial / log x ^ (k + 1)) + ((mₐ xₐ) * x / log x ^ 6) := by
   intro x hx
   have h2xa : 2 ≤ xₐ := two_le_xₐ
@@ -2376,14 +2223,6 @@ theorem pi_lower_specific : ∀ x > xₐ, pi x > x * ∑ k ∈ Finset.range 5, (
   linarith [hmain_ge, hS_le, hG_gt, hm_eq.le, hm_eq.ge]
 
 
-@[blueprint
-  "epsilon-bound"
-  (title := "Bound for εMₐ - εmₐ")
-  (statement := /-- We have $\epsilon_{M_a} - \epsilon'_{m_a} < \log (e x_a )$. -/)
-  (proof := /-- This is a direct calculation. An AI verification can be found at https://chatgpt.com/share/69a64f96-b1cc-800e-8f85-850168d23094
-  -/)
-  (latexEnv := "lemma")
-  (discussion := 998)]
 theorem epsilon_bound :
   ∀ x > exₐ, ε (Mₐ exₐ) x - εlower (mₐ xₐ) xₐ x < log x := by
   intro x hx
@@ -2423,13 +2262,6 @@ theorem epsilon_bound :
     unfold ε εneg
     nlinarith [mul_le_mul_of_nonpos_right halpha_tight (by linarith : mₐ xₐ ≤ 0)]
 
-@[blueprint
-  "ramanujan-final"
-  (title := "Ramanujan's inequality")
-  (statement := /-- For $x \geq e x_a$ we have $\pi(x)^2 < \frac{e x}{\log x} \pi\Big(\frac{x}{e}\Big)$. -/)
-  (proof := /-- \cite[Theorem 2]{PT2021} This follows from the previous lemmas and calculations, including the criterion for Ramanujan's inequality. -/)
-  (latexEnv := "theorem")
-  (discussion := 999)]
 theorem ramanujan_final : ∀ x > exₐ, pi x ^ 2 < exp 1 * x / log x * pi (x / exp 1) :=
   criterion (mₐ xₐ) (Mₐ exₐ) xₐ exₐ
     one_lt_xₐ

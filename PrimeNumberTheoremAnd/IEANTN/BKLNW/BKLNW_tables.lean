@@ -1,16 +1,9 @@
-import Architect
 import Mathlib.Analysis.Complex.ExponentialBounds
 import PrimeNumberTheoremAnd.IEANTN.RosserSchoenfeld.RosserSchoenfeldPrime_tables
 import PrimeNumberTheoremAnd.IEANTN.BKLNW.BKLNW_app_tables
 import PrimeNumberTheoremAnd.IEANTN.LogTables
 
 
-blueprint_comment /--
-\section{Numerical content of BKLNW}
-
-Purely numerical calculations from \cite{BKLNW}.  This is kept in a separate file from the main file to avoid heavy recompilations.  Because of this, this file should not import any other files from the PNT+ project, other than further numerical data files.
-
--/
 
 namespace BKLNW
 
@@ -151,11 +144,6 @@ lemma check_row_prop_of_bounds {b M m eps c1 c2 c3 : ℝ}
 --   rw [← pow_lt_pow_iff_left₀ (by positivity) (n := 3), ← rpow_mul_natCast] <;> norm_num only
 
 set_option maxRecDepth 10000 in
-@[blueprint
-  "bklnw-table-14-check"
-  (statement := /-- The entries in Table 14 obey the criterion in Sublemma \ref{bklnw-thm-1a-checked}. -/)
-  (latexEnv := "sublemma")
-  (discussion := 808)]
 theorem table_14_check {b M m : ℝ} (h_table : (b, M, m) ∈ table_14) : check_row_prop (b, M, m) := by
   classical
   simp only [table_14, List.mem_cons, List.not_mem_nil, or_false] at h_table

@@ -3,30 +3,9 @@ import PrimeNumberTheoremAnd.IEANTN.SecondaryDefinitions
 
 open Chebyshev Finset Nat Real Filter
 
-blueprint_comment /--
-\section{An inequality of Costa-Pereira}\label{costa-pereira-sec}
-
-We record here an inequality relating the Chebyshev functions
-$\psi(x)$ and $\theta(x)$ due to Costa Pereira \cite{costa-pereira},
-namely
-$$ \psi(x^{1/2}) + \psi(x^{1/3}) + \psi(x^{1/7})
-   \leq \psi(x) - \theta(x)
-   \leq \psi(x^{1/2}) + \psi(x^{1/3}) + \psi(x^{1/5}) . $$
--/
 
 namespace CostaPereira
 
-@[blueprint
-  "costa-pereira-sublemma-1-1"
-  (title := "Costa-Pereira Sublemma 1.1")
-  (statement :=
-    /-- For every $x > 0$ we have
-    $\psi(x) = \sum_{k \geqslant 1} \theta(x^{1/k})$. -/)
-  (proof :=
-    /-- This follows directly from the definitions
-    of $\psi$ and $\theta$. -/)
-  (latexEnv := "sublemma")
-  (discussion := 676)]
 theorem sublemma_1_1 {x : ℝ} (hx : 0 < x) :
     ψ x = ∑' (k : ℕ), θ (x ^ (1 / ((k.succ : ℕ) : ℝ))) := by
   have theta_zero_large_k :
@@ -75,40 +54,11 @@ theorem sublemma_1_1 {x : ℝ} (hx : 0 < x) :
   rw [h_eq]
   simpa using psi_eq_sum_theta hx.le
 
-@[blueprint
-  "costa-pereira-sublemma-1-2"
-  (title := "Costa-Pereira Sublemma 1.2")
-  (statement :=
-    /-- For every $x > 0$ and $n$ we have
-    $\psi(x^{1/n})
-      = \sum_{k \geqslant 1} \theta(x^{1/nk})$. -/)
-  (proof :=
-    /-- Follows from Sublemma
-    \ref{costa-pereira-sublemma-1-1}
-    and substitution.-/)
-  (latexEnv := "sublemma")
-  (discussion := 677)]
 theorem sublemma_1_2 {x : ℝ} (hx : 0 < x) (n : ℝ) :
     ψ (x ^ (1 / n : ℝ)) = ∑' (k : ℕ), θ (x ^ (1 / (n * ((k.succ : ℕ) : ℝ)))) := by
   simp_rw [sublemma_1_1 (rpow_pos_of_pos hx _), ← rpow_mul (le_of_lt hx),
     _root_.div_mul_div_comm, one_mul]
 
-@[blueprint
-  "costa-pereira-sublemma-1-3"
-  (title := "Costa-Pereira Sublemma 1.3")
-  (statement :=
-    /-- For every $x > 0$ we have
-    \[
-    \psi(x) = \theta(x) + \psi(x^{1/2})
-      + \sum_{k \geqslant 1} \theta(x^{1/(2k+1)}).
-    \]
-    -/)
-  (proof :=
-    /-- Follows from Sublemma
-    \ref{costa-pereira-sublemma-1-1} and Sublemma
-    \ref{costa-pereira-sublemma-1-2}. -/)
-  (latexEnv := "sublemma")
-  (discussion := 678)]
 theorem sublemma_1_3 {x : ℝ} (hx : 0 < x) :
     ψ x = θ x + ψ (x ^ (1 / 2 : ℝ)) +
       ∑' (k : ℕ), θ (x ^ (1 / (2 * (k.succ : ℝ) + 1))) := by
@@ -134,24 +84,6 @@ theorem sublemma_1_3 {x : ℝ} (hx : 0 < x) :
       (show (fun k ↦ 2 * k + 2).Injective from fun a b h ↦ by grind) using 2
     grind
 
-@[blueprint
-  "costa-pereira-sublemma-1-4"
-  (title := "Costa-Pereira Sublemma 1.4")
-  (statement :=
-    /-- For every $x > 0$ we have
-    \[
-    \psi(x) - \theta(x) = \psi(x^{1/2})
-      + \sum_{k \geqslant 1} \theta(x^{1/(6k-3)})
-      + \sum_{k \geqslant 1} \theta(x^{1/(6k-1)})
-      + \sum_{k \geqslant 1} \theta(x^{1/(6k+1)}).
-    \]
-    -/)
-  (proof :=
-    /-- Follows from Sublemma
-    \ref{costa-pereira-sublemma-1-3}
-    and rearranging the sum. -/)
-  (latexEnv := "sublemma")
-  (discussion := 679)]
 theorem sublemma_1_4 {x : ℝ} (hx : 0 < x) :
     ψ x - θ x = ψ (x ^ (1 / 2 : ℝ)) +
       ∑' (k : ℕ), θ (x ^ (1 / (6 * ((k.succ : ℕ) : ℝ) - 3))) +
@@ -212,23 +144,6 @@ theorem sublemma_1_4 {x : ℝ} (hx : 0 < x) :
         ⟨_, hasSum_single 0 fun k hk ↦ hN _ <| Nat.le_add_left ..⟩
   grind [sublemma_1_3 hx]
 
-@[blueprint
-  "costa-pereira-sublemma-1-5"
-  (title := "Costa-Pereira Sublemma 1.5")
-  (statement :=
-    /-- For every $x > 0$ we have
-    \[
-    \psi(x^{1/3})
-      = \sum_{k \geqslant 1} \theta(x^{1/(6k-3)})
-      + \sum_{k \geqslant 1} \theta(x^{1/(6k)}).
-    \]
-    -/)
-  (proof :=
-    /-- Follows from Sublemma
-    \ref{costa-pereira-sublemma-1-2}
-    and substitution. -/)
-  (latexEnv := "sublemma")
-  (discussion := 680)]
 theorem sublemma_1_5 {x : ℝ} (hx : 0 < x) :
     ψ (x ^ (1 / 3 : ℝ)) =
       ∑' (k : ℕ),
@@ -315,25 +230,6 @@ theorem sublemma_1_5 {x : ℝ} (hx : 0 < x) :
       push_cast
       ring
 
-@[blueprint
-  "costa-pereira-sublemma-1-6"
-  (title := "Costa-Pereira Sublemma 1.6")
-  (statement :=
-    /-- For every $x > 0$ we have
-    \[
-    \psi(x) - \theta(x)
-      = \psi(x^{1/2}) + \psi(x^{1/3})
-      + \sum_{k \geqslant 1} \theta(x^{1/(6k-1)})
-      - \sum_{k \geqslant 1} \theta(x^{1/(6k)})
-      + \sum_{k \geqslant 1} \theta(x^{1/(6k+1)}).
-    \]
-    -/)
-  (proof :=
-    /-- Follows from Sublemma
-    \ref{costa-pereira-sublemma-1-4} and Sublemma
-    \ref{costa-pereira-sublemma-1-5}. -/)
-  (latexEnv := "sublemma")
-  (discussion := 681)]
 theorem sublemma_1_6 {x : ℝ} (hx : 0 < x) :
     ψ x - θ x =
       ψ (x ^ (1 / 2 : ℝ)) +
@@ -347,23 +243,6 @@ theorem sublemma_1_6 {x : ℝ} (hx : 0 < x) :
   rw [sublemma_1_4 hx, sublemma_1_5 hx]
   ring
 
-@[blueprint
-  "costa-pereira-sublemma-1-7"
-  (title := "Costa-Pereira Sublemma 1.7")
-  (statement :=
-    /-- For every $x > 0$ we have
-    \[
-    \psi(x) - \theta(x) \leqslant \psi(x^{1/2})
-      + \psi(x^{1/3})
-      + \sum_{k \geqslant 1} \theta(x^{1/5k})
-    \]
-    -/)
-  (proof :=
-    /-- Follows from Sublemma
-    \ref{costa-pereira-sublemma-1-6} and the fact
-    that $\theta$ is an increasing function. -/)
-  (latexEnv := "sublemma")
-  (discussion := 682)]
 theorem sublemma_1_7 {x : ℝ} (hx : 0 < x) :
     ψ x - θ x ≤ ψ (x ^ (1 / 2 : ℝ)) +
       ψ (x ^ (1 / 3 : ℝ)) +
@@ -466,23 +345,6 @@ theorem sublemma_1_7 {x : ℝ} (hx : 0 < x) :
           (by norm_num : (5 : ℝ) / 4 ≤ 2)]
     · positivity
 
-@[blueprint
-  "costa-pereira-sublemma-1-8"
-  (title := "Costa-Pereira Sublemma 1.8")
-  (statement :=
-    /-- For every $x > 0$ we have
-    \[
-    \psi(x) - \theta(x) \geqslant \psi(x^{1/2})
-      + \psi(x^{1/3})
-      + \sum_{k \geqslant 1} \theta(x^{1/7k})
-    \]
-    -/)
-  (proof :=
-    /-- Follows from Sublemma
-    \ref{costa-pereira-sublemma-1-6} and the fact
-    that $\theta$ is an increasing function. -/)
-  (latexEnv := "sublemma")
-  (discussion := 683)]
 theorem sublemma_1_8 {x : ℝ} (hx : 0 < x) :
     ψ x - θ x ≥ ψ (x ^ (1 / 2 : ℝ)) +
       ψ (x ^ (1 / 3 : ℝ)) +
@@ -646,36 +508,10 @@ theorem sublemma_1_8 {x : ℝ} (hx : 0 < x) :
                   linarith)).trans (by norm_num))
   grind
 
-@[blueprint
-  "costa-pereira-theorem-1a"
-  (title := "Costa-Pereira Theorem 1a")
-  (statement :=
-    /-- For every $x > 0$ we have
-    $\psi(x) - \theta(x) \leqslant \psi(x^{1/2})
-      + \psi(x^{1/3}) + \psi(x^{1/5})$. -/)
-  (proof :=
-    /-- Follows from Sublemma
-    \ref{costa-pereira-sublemma-1-7} and
-    Sublemma \ref{costa-pereira-sublemma-1-2}. -/)
-  (latexEnv := "theorem")
-  (discussion := 684)]
 theorem theorem_1a {x : ℝ} (hx : 0 < x) :
     ψ x - θ x ≤ ψ (x ^ (1 / 2 : ℝ)) + ψ (x ^ (1 / 3 : ℝ)) + ψ (x ^ (1 / 5 : ℝ)) :=
   sublemma_1_2 hx 5 ▸ sublemma_1_7 hx
 
-@[blueprint
-  "costa-pereira-theorem-1b"
-  (title := "Costa-Pereira Theorem 1b")
-  (statement :=
-    /-- For every $x > 0$ we have
-    $\psi(x) - \theta(x) \geqslant \psi(x^{1/2})
-      + \psi(x^{1/3}) + \psi(x^{1/7})$. -/)
-  (proof :=
-    /-- Follows from Sublemma
-    \ref{costa-pereira-sublemma-1-8} and
-    Sublemma \ref{costa-pereira-sublemma-1-2}. -/)
-  (latexEnv := "theorem")
-  (discussion := 685)]
 theorem theorem_1b {x : ℝ} (hx : 0 < x) :
     ψ x - θ x ≥ ψ (x ^ (1 / 2 : ℝ)) + ψ (x ^ (1 / 3 : ℝ)) + ψ (x ^ (1 / 7 : ℝ)) :=
   sublemma_1_2 hx 7 ▸ sublemma_1_8 hx
