@@ -1,4 +1,3 @@
-import Architect
 import LeanCert.Examples.Li2Bounds
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 import Mathlib.Topology.Order.Basic
@@ -103,32 +102,14 @@ theorem g_intervalIntegrable (a b : ℝ) (ha : 0 < a) (hb : b < 1) (hab : a ≤ 
 
 /-! ### Certified Bounds on li(2) -/
 
-@[blueprint
-  "li2-lower"
-  (title := "Lower bound on li(2)")
-  (statement :=
-    /-- $\mathrm{li}(2) \geq 1.039$ -/)
-  (discussion := 759)]
 theorem li2_symmetric_lower : (1039 : ℚ) / 1000 ≤ li2_symmetric := by
   rw [li2_symmetric_eq_Li2_li2]
   exact Li2.li2_lower
 
-@[blueprint
-  "li2-upper"
-  (title := "Upper bound on li(2)")
-  (statement :=
-    /-- $\mathrm{li}(2) \leq 1.06$ -/)
-  (discussion := 759)]
 theorem li2_symmetric_upper : li2_symmetric ≤ (106 : ℚ) / 100 := by
   rw [li2_symmetric_eq_Li2_li2]
   exact Li2.li2_upper
 
-@[blueprint
-  "li2-bounds"
-  (title := "Bounds on li(2)")
-  (statement :=
-    /-- $1.039 \leq \mathrm{li}(2) \leq 1.06$ -/)
-  (discussion := 759)]
 theorem li2_symmetric_bounds :
     (1039 : ℚ) / 1000 ≤ li2_symmetric ∧ li2_symmetric ≤ (106 : ℚ) / 100 :=
   ⟨li2_symmetric_lower, li2_symmetric_upper⟩
@@ -228,12 +209,6 @@ theorem pv_tendsto_li2_symmetric :
   rw [setDiff_integral_eq_split ε 2 hε.1 hε.2 (by rfl),
     pv_integral_eq_symmetric ε hε.1 hε.2]
 
-@[blueprint
-  "li2-eq"
-  (title := "Symmetric form equals principal value")
-  (statement :=
-    /-- The symmetric integral equals li(2). -/)
-  (discussion := 764)]
 theorem li2_symmetric_eq_li2 : li2_symmetric = li 2 :=
   (pv_tendsto_li2_symmetric.limUnder_eq).symm
 

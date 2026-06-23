@@ -1,4 +1,3 @@
-import Architect
 import Mathlib.Analysis.Calculus.ContDiff.Basic
 import Mathlib.MeasureTheory.Integral.Asymptotics
 import PrimeNumberTheoremAnd.Mathlib.Analysis.Asymptotics.Uniformly
@@ -11,43 +10,15 @@ open Asymptotics Complex ComplexConjugate Topology Filter Real MeasureTheory Set
 
 open scoped Interval
 
-blueprint_comment /--
-In this section, we prove the Perron formula, which plays a key role in our proof of Mellin
-inversion.
--/
 
-blueprint_comment /--
-The following is preparatory material used in the proof of the Perron formula, see Lemma
-\ref{formulaLtOne}.
--/
 
 /- TODO: move to general section. -/
-@[blueprint
-  (title := "zeroTendstoDiff")
-  (statement := /--
-  If the limit of $0$ is $L_1 - L_2$, then $L_1 = L_2$.
-  -/)
-  (proof := /-- Obvious. -/)
-  (latexEnv := "lemma")]
 lemma zeroTendstoDiff (L₁ L₂ : ℂ) (f : ℝ → ℂ) (h : ∀ᶠ T in atTop, f T = 0)
     (h' : Tendsto f atTop (𝓝 (L₂ - L₁))) : L₁ = L₂ := by
   rw [← zero_add L₁, ← @eq_sub_iff_add_eq]
   exact tendsto_nhds_unique (EventuallyEq.tendsto h) h'
 
 /- TODO: Move this to general section. -/
-@[blueprint
-  (title := "RectangleIntegral-tendsTo-VerticalIntegral")
-  (statement := /--
-  Let $\sigma,\sigma' \in \mathbb{R}$, and $f : \mathbb{C} \to \mathbb{C}$ such that
-  the vertical integrals $\int_{(\sigma)}f(s)ds$ and $\int_{(\sigma')}f(s)ds$ exist and
-  the horizontal integral $\int_{(\sigma)}^{\sigma'}f(x + yi)dx$ vanishes as $y \to \pm \infty$.
-  Then the limit of rectangle integrals
-  $$\lim_{T\to\infty}\int_{\sigma-iT}^{\sigma'+iT}f(s)ds =
-  \int_{(\sigma')}f(s)ds - \int_{(\sigma)}f(s)ds.$$
-  -/)
-  (proof := /-- Almost by definition. -/)
-  (proofUses := ["RectangleIntegral"])
-  (latexEnv := "lemma")]
 lemma RectangleIntegral_tendsTo_VerticalIntegral {σ σ' : ℝ} {f : ℂ → ℂ}
     (hbot : Tendsto (fun (y : ℝ) ↦ ∫ (x : ℝ) in σ..σ', f (x + y * I)) atBot (𝓝 0))
     (htop : Tendsto (fun (y : ℝ) ↦ ∫ (x : ℝ) in σ..σ', f (x + y * I)) atTop (𝓝 0))
@@ -105,19 +76,6 @@ lemma verticalIntegral_sub_verticalIntegral_eq_squareIntegral
   · refine hf.mono (diff_subset_diff ?_ subset_rfl)
     simpa [Rectangle, uIcc_of_lt (hσ.1.trans hσ.2)] using fun x ⟨hx, _⟩ ↦ ⟨hx, trivial⟩
 
-@[blueprint
-  (title := "RectangleIntegral-tendsTo-UpperU")
-  (statement := /--
-  Let $\sigma,\sigma' \in \mathbb{R}$, and $f : \mathbb{C} \to \mathbb{C}$ such that
-  the vertical integrals $\int_{(\sigma)}f(s)ds$ and $\int_{(\sigma')}f(s)ds$ exist and
-  the horizontal integral $\int_{(\sigma)}^{\sigma'}f(x + yi)dx$ vanishes as $y \to \pm \infty$.
-  Then the limit of rectangle integrals
-  $$\int_{\sigma+iT}^{\sigma'+iU}f(s)ds$$
-  as $U\to\infty$ is the ``UpperUIntegral'' of $f$.
-  -/)
-  (proof := /-- Almost by definition. -/)
-  (proofUses := ["RectangleIntegral", "UpperUIntegral"])
-  (latexEnv := "lemma")]
 lemma RectangleIntegral_tendsTo_UpperU {σ σ' T : ℝ} {f : ℂ → ℂ}
     (htop : Tendsto (fun (y : ℝ) ↦ ∫ (x : ℝ) in σ..σ', f (x + y * I)) atTop (𝓝 0))
     (hleft : Integrable (fun (y : ℝ) ↦ f (σ + y * I)))
@@ -136,19 +94,6 @@ lemma RectangleIntegral_tendsTo_UpperU {σ σ' T : ℝ} {f : ℂ → ℂ}
   simpa only [RectangleIntegral, UpperUIntegral, h_re, h_im, sub_zero,
     ← integral_Ici_eq_integral_Ioi]
 
-@[blueprint
-  (title := "RectangleIntegral-tendsTo-LowerU")
-  (statement := /--
-  Let $\sigma,\sigma' \in \mathbb{R}$, and $f : \mathbb{C} \to \mathbb{C}$ such that
-  the vertical integrals $\int_{(\sigma)}f(s)ds$ and $\int_{(\sigma')}f(s)ds$ exist and
-  the horizontal integral $\int_{(\sigma)}^{\sigma'}f(x + yi)dx$ vanishes as $y \to -\infty$.
-  Then the limit of rectangle integrals
-  $$\int_{\sigma-iU}^{\sigma'-iT}f(s)ds$$
-  as $U\to\infty$ is the ``LowerUIntegral'' of $f$.
-  -/)
-  (proof := /-- Almost by definition. -/)
-  (proofUses := ["RectangleIntegral", "LowerUIntegral"])
-  (latexEnv := "lemma")]
 lemma RectangleIntegral_tendsTo_LowerU {σ σ' T : ℝ} {f : ℂ → ℂ}
     (hbot : Tendsto (fun (y : ℝ) ↦ ∫ (x : ℝ) in σ..σ', f (x + y * I)) atBot (𝓝 0))
     (hleft : Integrable (fun (y : ℝ) ↦ f (σ + y * I)))
@@ -186,21 +131,10 @@ lemma RectangleIntegral_tendsTo_LowerU {σ σ' T : ℝ} {f : ℂ → ℂ}
   exact final ▸ this
 --%\end{proof}
 
-blueprint_comment /--
-TODO : Move to general section
--/
-@[blueprint
-  (title := "limitOfConstant")
-  (statement := /--
-  Let $a:\R\to\C$ be a function, and let $\sigma>0$ be a real number. Suppose that, for all
-  $\sigma, \sigma'>0$, we have $a(\sigma')=a(\sigma)$, and that
-  $\lim_{\sigma\to\infty}a(\sigma)=0$. Then $a(\sigma)=0$.
-  -/)
-  (latexEnv := "lemma")]
 lemma limitOfConstant {a : ℝ → ℂ} {σ : ℝ} (σpos : 0 < σ)
     (ha : ∀ (σ' : ℝ) (σ'' : ℝ) (_ : 0 < σ') (_ : 0 < σ''), a σ' = a σ'')
     (ha' : Tendsto a atTop (𝓝 0)) : a σ = 0 := by
-  /--
+  /-
   \begin{align*}
   \lim_{\sigma'\to\infty}a(\sigma) &= \lim_{\sigma'\to\infty}a(\sigma') \\
   &= 0
@@ -211,18 +145,10 @@ lemma limitOfConstant {a : ℝ → ℂ} {σ : ℝ} (σpos : 0 < σ)
 
 
 
-@[blueprint
-  (title := "limitOfConstantLeft")
-  (statement := /--
-  Let $a:\R\to\C$ be a function, and let $\sigma<-3/2$ be a real number. Suppose that, for all
-  $\sigma, \sigma'>0$, we have $a(\sigma')=a(\sigma)$, and that
-  $\lim_{\sigma\to-\infty}a(\sigma)=0$. Then $a(\sigma)=0$.
-  -/)
-  (latexEnv := "lemma")]
 lemma limitOfConstantLeft {a : ℝ → ℂ} {σ : ℝ} (σlt : σ ≤ -3 / 2)
     (ha : ∀ (σ' : ℝ) (σ'' : ℝ) (_ : σ' ≤ -3 / 2) (_ : σ'' ≤ -3 / 2), a σ' = a σ'')
     (ha' : Tendsto a atBot (𝓝 0)) : a σ = 0 := by
-  /--
+  /-
   \begin{align*}
     \lim_{\sigma'\to-\infty}a(\sigma) &= \lim_{\sigma'\to-\infty}a(\sigma') \\
     &= 0
@@ -233,13 +159,6 @@ lemma limitOfConstantLeft {a : ℝ → ℂ} {σ : ℝ} (σlt : σ ≤ -3 / 2)
 
 
 
-@[blueprint
-  (title := "tendsto-rpow-atTop-nhds-zero-of-norm-lt-one")
-  (statement := /-- Let $x>0$ and $x<1$. Then
-  $$\lim_{\sigma\to\infty}x^\sigma=0.$$
-  -/)
-  (proof := /-- Standard. -/)
-  (latexEnv := "lemma")]
 lemma tendsto_rpow_atTop_nhds_zero_of_norm_lt_one {x : ℝ} (xpos : 0 < x) (x_lt_one : x < 1)
     (C : ℝ) :
     Tendsto (fun (σ : ℝ) ↦ x ^ σ * C) atTop (𝓝 0) := by
@@ -248,11 +167,6 @@ lemma tendsto_rpow_atTop_nhds_zero_of_norm_lt_one {x : ℝ} (xpos : 0 < x) (x_lt
 
 
 
-@[blueprint
-  (title := "tendsto-rpow-atTop-nhds-zero-of-norm-gt-one")
-  (statement := /-- Let $x>1$. Then $$\lim_{\sigma\to-\infty}x^\sigma=0.$$ -/)
-  (proof := /-- Standard. -/)
-  (latexEnv := "lemma")]
 lemma tendsto_rpow_atTop_nhds_zero_of_norm_gt_one {x : ℝ} (x_gt_one : 1 < x) (C : ℝ) :
     Tendsto (fun (σ : ℝ) ↦ x ^ σ * C) atBot (𝓝 0) := by
   have := (zero_lt_one.trans x_gt_one)
@@ -299,16 +213,8 @@ lemma f_mul_eq_f {x t : ℝ} (tpos : 0 < t) (xpos : 0 < x) (s : ℂ) :
   · norm_cast
 
 
-@[blueprint
-  "isHolomorphicOn"
-  (title := "isHolomorphicOn")
-  (statement := /--
-  Let $x>0$. Then the function $f(s) = x^s/(s(s+1))$ is holomorphic on the half-plane
-  $\{s\in\mathbb{C}:\Re(s)>0\}$.
-  -/)
-  (latexEnv := "lemma")]
 lemma isHolomorphicOn (xpos : 0 < x) : HolomorphicOn (f x) {0, -1}ᶜ := by
-  /-- Composition of differentiabilities. -/
+  /- Composition of differentiabilities. -/
   unfold f
   simp_rw [Complex.cpow_def_of_ne_zero <| ofReal_ne_zero.mpr <| ne_of_gt xpos]
   apply DifferentiableOn.div
@@ -370,33 +276,12 @@ lemma integralPosAux' (c₁ c₂ : ℝ) (c₁_pos : 0 < c₁) (c₂_pos : 0 < c�
   · exact integralPosAux'_of_le c₁ c₂ c₁_pos hc
   · convert integralPosAux'_of_le c₂ c₁ c₂_pos (by linarith) using 4; rw [mul_comm]
 
-@[blueprint
-  "integralPosAux"
-  (title := "integralPosAux")
-  (statement := /--
-  The integral
-  $$\int_\R\frac{1}{|(1+t^2)(2+t^2)|^{1/2}}dt$$
-  is positive (and hence convergent - since a divergent integral is zero in Lean, by
-  definition).
-  -/)
-  (latexEnv := "lemma")]
 lemma integralPosAux : 0 < ∫ (t : ℝ), 1 / ((1 + t^2).sqrt * (2 + t^2).sqrt) := by
-  /-- This integral is between $\frac{1}{2}$ and $1$ of the integral of $\frac{1}{1+t^2}$,
+  /- This integral is between $\frac{1}{2}$ and $1$ of the integral of $\frac{1}{1+t^2}$,
   which is $\pi$. -/
   apply integralPosAux' <;> norm_num
 
 
-@[blueprint
-  "vertIntBound"
-  (title := "vertIntBound")
-  (statement := /--
-  Let $x>0$ and $\sigma>1$. Then
-  $$\left|
-  \int_{(\sigma)}\frac{x^s}{s(s+1)}ds\right| \leq
-    x^\sigma \int_\R\frac{1}{|(1+t ^ 2)(2+t ^ 2)|^{1/2}}dt.$$
-  -/)
-  (proof := /-- Triangle inequality and pointwise estimate. -/)
-  (latexEnv := "lemma")]
 lemma vertIntBound (xpos : 0 < x) (σ_gt_one : 1 < σ) :
     ‖VerticalIntegral (f x) σ‖ ≤
       x ^ σ * ∫ (t : ℝ), 1 / ((1 + t ^ 2).sqrt * (2 + t ^ 2).sqrt) := by
@@ -430,17 +315,6 @@ lemma vertIntBound (xpos : 0 < x) (σ_gt_one : 1 < σ) :
 
 
 
-@[blueprint
-  "vertIntBoundLeft"
-  (title := "vertIntBoundLeft")
-  (statement := /--
-  Let $x>1$ and $\sigma<-3/2$. Then
-  $$\left|
-  \int_{(\sigma)}\frac{x^s}{s(s+1)}ds\right| \leq
-    x^\sigma \int_\R\frac{1}{|(1/4+t ^ 2)(2+t ^ 2)|^{1/2}}dt.$$
-  -/)
-  (proof := /-- Triangle inequality and pointwise estimate. -/)
-  (latexEnv := "lemma")]
 lemma vertIntBoundLeft (xpos : 0 < x) :
     ∃ C, ∀ (σ : ℝ) (_ : σ < -3 / 2), ‖VerticalIntegral' (f x) σ‖ ≤ C * x ^ σ := by
 
@@ -530,29 +404,21 @@ lemma isTheta (xpos : 0 < x) :
   isTheta_sup.mp <| isTheta_of_isThetaUniformly (isTheta_uniformlyOn_uIcc xpos σ σ) left_mem_uIcc
 
 
-@[blueprint "isIntegrable"
-  (title := "isIntegrable")
-  (statement := /--
-  Let $x>0$ and $\sigma\in\R$. Then
-  $$\int_{\R}\frac{x^{\sigma+it}}{(\sigma+it)(1+\sigma + it)}dt$$
-  is integrable.
-  -/)
-  (latexEnv := "lemma")]
 lemma isIntegrable (xpos : 0 < x) (σ_ne_zero : σ ≠ 0) (σ_ne_neg_one : σ ≠ -1) :
     Integrable fun (t : ℝ) ↦ f x (σ + t * I) := by
-  /-- By \ref{isHolomorphicOn}, $f$ is continuous, so it is integrable on any interval.-/
+  /- By \ref{isHolomorphicOn}, $f$ is continuous, so it is integrable on any interval.-/
   have : Continuous (fun (y : ℝ) ↦ f x (σ + y * I)) := by
     refine (isHolomorphicOn xpos).continuousOn.comp_continuous (by continuity) fun x ↦
       not_or.mpr ?_
     simp [Complex.ext_iff, σ_ne_zero, σ_ne_neg_one]
-  /-- Also, $|f(x)| = \Theta(x^{-2})$ as $x\to\infty$, -/
+  /- Also, $|f(x)| = \Theta(x^{-2})$ as $x\to\infty$, -/
   refine this.locallyIntegrable.integrable_of_isBigO_atTop_of_norm_isNegInvariant
     (univ_mem' fun y ↦ ?_) (isTheta xpos).2.isBigO ⟨Ioi 1, Ioi_mem_atTop 1, ?_⟩
-  · /-- and $|f(-x)| = \Theta(x^{-2})$ as $x\to\infty$. -/
+  · /- and $|f(-x)| = \Theta(x^{-2})$ as $x\to\infty$. -/
     change ‖f x (↑σ + ↑y * I)‖ = ‖f x (↑σ + ↑(-y) * I)‖
     have : (↑σ + ↑(-y) * I) = conj (↑σ + ↑y * I) := Complex.ext (by simp) (by simp)
     simp_rw [this, map_conj xpos.le, norm_conj]
-  · /-- Since $g(x) = x^{-2}$ is integrable on $[a,\infty)$ for any $a>0$, we conclude. -/
+  · /- Since $g(x) = x^{-2}$ is integrable on $[a,\infty)$ for any $a>0$, we conclude. -/
     refine integrableOn_Ioi_rpow_of_lt (show (-2 : ℝ) < -1 by norm_num)
       (show (0 : ℝ) < 1 by norm_num) |>.congr_fun (fun y hy ↦ ?_) measurableSet_Ioi
     rw [rpow_neg (show (0 : ℝ) < 1 by norm_num |>.trans hy |>.le), inv_eq_one_div, rpow_two]
@@ -572,16 +438,6 @@ theorem horizontal_integral_isBigO {x : ℝ} (xpos : 0 < x) (σ' σ'' : ℝ) (μ
         measurableSet_uIoc measure_Ioc_lt_top
 
 
-@[blueprint
-  "tendsto_zero_Lower"
-  (title := "tendsto-zero-Lower")
-  (statement := /--
-  Let $x>0$ and $\sigma',\sigma''\in\R$. Then
-  $$\int_{\sigma'}^{\sigma''}\frac{x^{\sigma+it}}{(\sigma+it)(1+\sigma + it)}d\sigma$$
-  goes to $0$ as $t\to-\infty$.
-  -/)
-  (proof := /-- The numerator is bounded and the denominator tends to infinity. -/)
-  (latexEnv := "lemma")]
 lemma tendsto_zero_Lower (xpos : 0 < x) (σ' σ'' : ℝ) :
     Tendsto (fun (t : ℝ) ↦ ∫ (σ : ℝ) in σ'..σ'', f x (σ + t * I)) atBot (𝓝 0) := by
 
@@ -593,15 +449,6 @@ lemma tendsto_zero_Lower (xpos : 0 < x) (σ' σ'' : ℝ) :
     <| tendsto_rpow_neg_atTop (by norm_num) |>.comp tendsto_neg_atBot_atTop
 
 
-@[blueprint
-  (title := "tendsto-zero-Upper")
-  (statement := /--
-  Let $x>0$ and $\sigma',\sigma''\in\R$. Then
-  $$\int_{\sigma'}^{\sigma''}\frac{x^{\sigma+it}}{(\sigma+it)(1+\sigma + it)}d\sigma$$
-  goes to $0$ as $t\to\infty$.
-  -/)
-  (proof := /-- The numerator is bounded and the denominator tends to infinity. -/)
-  (latexEnv := "lemma")]
 lemma tendsto_zero_Upper (xpos : 0 < x) (σ' σ'' : ℝ) :
     Tendsto (fun (t : ℝ) ↦ ∫ (σ : ℝ) in σ'..σ'', f x (σ + t * I)) atTop (𝓝 0) := by
 
@@ -621,23 +468,9 @@ lemma contourPull {σ' σ'' : ℝ} (xpos : 0 < x) (hσ0 : 0 ∉ [[σ', σ'']])
       (fun h ↦ hσ1 (h ▸ right_mem_uIcc)))
   rintro ⟨x, y⟩ ⟨hx, hy⟩ ⟨hc | hc⟩ <;> simp_all [Complex.ext_iff]
 
-blueprint_comment /--
-We are ready for the first case of the Perron formula, namely when $x<1$:
--/
-@[blueprint
-  "formulaLtOne"
-  (title := "formulaLtOne")
-  (statement := /--
-  For $x>0$, $\sigma>0$, and $x<1$, we have
-  $$
-  \frac1{2\pi i}
-  \int_{(\sigma)}\frac{x^s}{s(s+1)}ds =0.
-  $$
-  -/)
-  (latexEnv := "lemma")]
 lemma formulaLtOne (xpos : 0 < x) (x_lt_one : x < 1) (σ_pos : 0 < σ)
     : VerticalIntegral (f x) σ = 0 := by
-  /--
+  /-
   Let $f(s) = x^s/(s(s+1))$. Then $f$ is holomorphic on the half-plane
   $\{s\in\mathbb{C}:\Re(s)>0\}$. The rectangle integral of $f$ with corners $\sigma-iT$ and
   $\sigma+iT$ is zero. The limit of this rectangle integral as $T\to\infty$ is
@@ -647,14 +480,14 @@ lemma formulaLtOne (xpos : 0 < x) (x_lt_one : x < 1) (σ_pos : 0 < σ)
       VerticalIntegral (f x) σ' = VerticalIntegral (f x) σ'' :=
     contourPull xpos (notMem_uIcc_of_lt σ'pos σ''pos)
       (notMem_uIcc_of_lt (by linarith) (by linarith))
-  /--
+  /-
   But we also have the bound $\int_{(\sigma')} \leq x^{\sigma'} * C$, where
   $C=\int_\R\frac{1}{|(1+t)(1+t+1)|}dt$.
   -/
   have VertIntBound : ∃ C > 0, ∀ σ' > 1, ‖VerticalIntegral (f x) σ'‖ ≤ x^σ' * C := by
     let C := ∫ (t : ℝ), 1 / ((1 + t ^ 2).sqrt * (2 + t ^ 2).sqrt)
     exact ⟨C, integralPosAux, fun _ ↦ vertIntBound xpos⟩
-  /-- Therefore $\int_{(\sigma')}\to 0$ as $\sigma'\to\infty$. -/
+  /- Therefore $\int_{(\sigma')}\to 0$ as $\sigma'\to\infty$. -/
   have AbsVertIntTendsto :
       Tendsto ((‖·‖ : ℂ → ℝ) ∘ (VerticalIntegral (f x))) atTop (𝓝 0) := by
     obtain ⟨C, _, hC⟩ := VertIntBound
@@ -664,14 +497,9 @@ lemma formulaLtOne (xpos : 0 < x) (x_lt_one : x < 1) (σ_pos : 0 < σ)
     · filter_upwards [eventually_gt_atTop 1]; exact hC
   have VertIntTendsto : Tendsto (VerticalIntegral (f x)) atTop (𝓝 0) :=
     tendsto_zero_iff_norm_tendsto_zero.mpr AbsVertIntTendsto
-  /-- So pulling contours gives $\int_{(\sigma)}=0$. -/
+  /- So pulling contours gives $\int_{(\sigma)}=0$. -/
   exact limitOfConstant σ_pos h_contourPull VertIntTendsto
 
-blueprint_comment /--
-The second case is when $x>1$.
-Here are some auxiliary lemmata for the second case.
-TODO: Move to more general section
--/
 
 theorem HolomorphicOn.upperUIntegral_eq_zero {f : ℂ → ℂ} {σ σ' T : ℝ} (hσ : σ ≤ σ')
     (hf : HolomorphicOn f {z : ℂ | σ ≤ z.re ∧ z.re ≤ σ' ∧ T ≤ z.im})
@@ -704,17 +532,6 @@ lemma sPlusOneNeZero {s : ℂ} (s_ne_neg_one : s ≠ -1) : s + 1 ≠ 0 :=
   fun h ↦ s_ne_neg_one (add_eq_zero_iff_eq_neg.mp h)
 
 
-@[blueprint
-  "keyIdentity"
-  (title := "keyIdentity")
-  (statement := /--
-  Let $x\in \R$ and $s \ne 0, -1$. Then
-  $$
-  \frac{x^\sigma}{s(1+s)} = \frac{x^\sigma}{s} - \frac{x^\sigma}{1+s}
-  $$
-  -/)
-  (proof := /-- By ring. -/)
-  (latexEnv := "lemma")]
 lemma keyIdentity (x : ℝ) {s : ℂ} (s_ne_zero : s ≠ 0) (s_ne_neg_one : s ≠ -1) :
     (x : ℂ) ^ s / (s * (s + 1))
       = (x : ℂ) ^ s / s - (x : ℂ) ^ s / (s + 1) := by
@@ -742,23 +559,6 @@ lemma bddAbove_square_of_tendsto {f : ℂ → β} {x : ℂ}
   exact ht _ <| (diff_subset_diff (square_subset_square hε'0 hε'.le) subset_rfl).trans hε
 
 
-@[blueprint
-  "diffBddAtZero"
-  (title := "diffBddAtZero")
-  (statement := /--
-  Let $x>0$. Then for $0 < c < 1 /2$, we have that the function
-  $$
-  s ↦ \frac{x^s}{s(s+1)} - \frac1s
-  $$
-  is bounded above on the rectangle with corners at $-c-i*c$ and $c+i*c$ (except at $s=0$).
-  -/)
-  (proof := /--
-  Applying Lemma \ref{keyIdentity}, the
-   function $s ↦ x^s/s(s+1) - 1/s = x^s/s - x^0/s - x^s/(1+s)$. The last term is bounded for $s$
-   away from $-1$. The first two terms are the difference quotient of the function $s ↦ x^s$ at
-   $0$; since it's differentiable, the difference remains bounded as $s\to 0$.
-  -/)
-  (latexEnv := "lemma")]
 lemma diffBddAtZero {x : ℝ} (xpos : 0 < x) :
     ∀ᶠ (c : ℝ) in 𝓝[>] 0,
       BddAbove ((norm ∘ (fun (s : ℂ) ↦ (x : ℂ) ^ s / (s * (s + 1)) - 1 / s)) ''
@@ -787,24 +587,6 @@ lemma diffBddAtZero {x : ℝ} (xpos : 0 < x) :
       |>.div (tendsto_const_nhds.add tendsto_id) (by norm_num)
 
 
-@[blueprint
-  "diffBddAtNegOne"
-  (title := "diffBddAtNegOne")
-  (statement := /--
-  Let $x>0$. Then for $0 < c < 1 /2$, we have that the function
-  $$
-  s ↦ \frac{x^s}{s(s+1)} - \frac{-x^{-1}}{s+1}
-  $$
-  is bounded above on the rectangle with corners at $-1-c-i*c$ and $-1+c+i*c$ (except at $s=-1$).
-  -/)
-  (proof := /--
-  Applying Lemma \ref{keyIdentity}, the
-   function $s ↦ x^s/s(s+1) - x^{-1}/(s+1) = x^s/s - x^s/(s+1) - (-x^{-1})/(s+1)$. The first term
-   is bounded for $s$
-   away from $0$. The last two terms are the difference quotient of the function $s ↦ x^s$ at
-   $-1$; since it's differentiable, the difference remains bounded as $s\to -1$.
-  -/)
-  (latexEnv := "lemma")]
 lemma diffBddAtNegOne {x : ℝ} (xpos : 0 < x) :
     ∀ᶠ (c : ℝ) in 𝓝[>] 0,
       BddAbove ((norm ∘ (fun (s : ℂ) ↦ (x : ℂ) ^ s / (s * (s + 1)) -
@@ -831,20 +613,9 @@ lemma diffBddAtNegOne {x : ℝ} (xpos : 0 < x) :
     rw [slope_def_field, cpow_neg_one, ofReal_inv]; ring
 
 
-@[blueprint
-  "residueAtZero"
-  (title := "residueAtZero")
-  (statement := /--
-  Let $x>0$. Then for all sufficiently small $c>0$, we have that
-  $$
-  \frac1{2\pi i}
-  \int_{-c-i*c}^{c+ i*c}\frac{x^s}{s(s+1)}ds = 1.
-  $$
-  -/)
-  (latexEnv := "lemma")]
 lemma residueAtZero (xpos : 0 < x) : ∀ᶠ (c : ℝ) in 𝓝[>] 0,
     RectangleIntegral' (f x) (-c - c * I) (c + c * I) = 1 := by
-  /-- For $c>0$ sufficiently small, -/
+  /- For $c>0$ sufficiently small, -/
   filter_upwards
     [Ioo_mem_nhdsGT (by linarith : (0 : ℝ) < 1 / 2), diffBddAtZero xpos]
   intro c hc bddAbove
@@ -859,32 +630,20 @@ lemma residueAtZero (xpos : 0 < x) : ∀ᶠ (c : ℝ) in 𝓝[>] 0,
     fHolo.sub (by simpa using differentiableOn_inv.mono fun s hs ↦ hs.2)
 
   have RectMemNhds : Square 0 c ∈ 𝓝 0 := square_mem_nhds 0 (ne_of_gt cpos)
-  /--
+  /-
   $x^s/(s(s+1))$ is equal to $1/s$ plus a function, $g$, say,
   holomorphic in the whole rectangle (by Lemma \ref{diffBddAtZero}).
   -/
   obtain ⟨g, gHolo, g_eq_fDiff⟩ :=
     existsDifferentiableOn_of_bddAbove RectMemNhds f1Holo bddAbove
   simp_rw [Square, add_zero] at fHolo gHolo RectMemNhds
-  /-- Now apply Lemma \ref{ResidueTheoremOnRectangleWithSimplePole}. -/
+  /- Now apply Lemma \ref{ResidueTheoremOnRectangleWithSimplePole}. -/
   refine ResidueTheoremOnRectangleWithSimplePole ?_ ?_ RectMemNhds gHolo ?_
   any_goals simpa using cpos.le
   convert g_eq_fDiff using 3 <;> simp [Square]
 
 
 
-@[blueprint
-  "residueAtNegOne"
-  (title := "residueAtNegOne")
-  (statement := /--
-  Let $x>0$. Then for all sufficiently small $c>0$, we have that
-  $$
-  \frac1{2\pi i}
-  \int_{-c-i*c-1}^{c+ i*c-1}\frac{x^s}{s(s+1)}ds = -\frac1x.
-  $$
-  -/)
-  (proof := /-- Compute the integral. -/)
-  (latexEnv := "lemma")]
 lemma residueAtNegOne (xpos : 0 < x) : ∀ᶠ (c : ℝ) in 𝓝[>] 0,
     RectangleIntegral' (f x) (-c - c * I - 1) (c + c * I - 1) = -x⁻¹ := by
   filter_upwards [Ioo_mem_nhdsGT (by linarith : (0 : ℝ) < 1 / 2), diffBddAtNegOne xpos]
@@ -913,25 +672,6 @@ lemma residueAtNegOne (xpos : 0 < x) : ∀ᶠ (c : ℝ) in 𝓝[>] 0,
   · convert g_eq_fDiff using 3; simp
 
 
-@[blueprint
-  "residuePull1"
-  (title := "residuePull1")
-  (statement := /--
-  For $x>1$ (of course $x>0$ would suffice) and $\sigma>0$, we have
-  $$
-  \frac1{2\pi i}
-  \int_{(\sigma)}\frac{x^s}{s(s+1)}ds =1
-  +
-  \frac 1{2\pi i}
-  \int_{(-1/2)}\frac{x^s}{s(s+1)}ds.
-  $$
-  -/)
-  (proof := /--
-  We pull to a square with corners at $-c-i*c$ and $c+i*c$ for $c>0$
-  sufficiently small.
-  By Lemma \ref{residueAtZero}, the integral over this square is equal to $1$.
-  -/)
-  (latexEnv := "lemma")]
 lemma residuePull1 (x_gt_one : 1 < x) (σ_pos : 0 < σ) :
     VerticalIntegral' (f x) σ = 1 + VerticalIntegral' (f x) (-1 / 2) := by
 
@@ -952,20 +692,6 @@ lemma residuePull1 (x_gt_one : 1 < x) (σ_pos : 0 < σ) :
   rw [VerticalIntegral', ← smul_sub, hε.2, ← RectangleIntegral', add_zero, add_zero, hε.1]
 
 
-@[blueprint
-  "residuePull2"
-  (title := "residuePull2")
-  (statement := /--
-  For $x>1$, we have
-  $$
-  \frac1{2\pi i}
-  \int_{(-1/2)}\frac{x^s}{s(s+1)}ds = -1/x +
-  \frac 1{2\pi i}
-  \int_{(-3/2)}\frac{x^s}{s(s+1)}ds.
-  $$
-  -/)
-  (proof := /-- Pull contour from $(-1/2)$ to $(-3/2)$. -/)
-  (latexEnv := "lemma")]
 lemma residuePull2 (x_gt_one : 1 < x) :
     VerticalIntegral' (fun s ↦ x ^ s / (s * (s + 1))) (-1 / 2)
     = -1 / x + VerticalIntegral' (fun s ↦ x ^ s / (s * (s + 1))) (-3 / 2) := by
@@ -989,19 +715,6 @@ lemma residuePull2 (x_gt_one : 1 < x) :
 
 
 
-@[blueprint
-  "contourPull3"
-  (title := "contourPull3")
-  (statement := /--
-  For $x>1$ and $\sigma<-3/2$, we have
-  $$
-  \frac1{2\pi i}
-  \int_{(-3/2)}\frac{x^s}{s(s+1)}ds = \frac 1{2\pi i}
-  \int_{(\sigma)}\frac{x^s}{s(s+1)}ds.
-  $$
-  -/)
-  (proof := /-- Pull contour from $(-3/2)$ to $(\sigma)$. -/)
-  (latexEnv := "lemma")]
 lemma contourPull3 (x_gt_one : 1 < x) (σ'le : σ' ≤ -3 / 2) (σ''le : σ'' ≤ -3 / 2) :
     VerticalIntegral' (fun s ↦ x ^ s / (s * (s + 1))) σ' =
       VerticalIntegral' (fun s ↦ x ^ s / (s * (s + 1))) σ'' := by
@@ -1012,35 +725,24 @@ lemma contourPull3 (x_gt_one : 1 < x) (σ'le : σ' ≤ -3 / 2) (σ''le : σ'' �
     (notMem_uIcc_of_gt (by linarith) (by linarith))
 
 
-@[blueprint
-  "formulaGtOne"
-  (title := "formulaGtOne")
-  (statement := /--
-  For $x>1$ and $\sigma>0$, we have
-  $$
-  \frac1{2\pi i}
-  \int_{(\sigma)}\frac{x^s}{s(s+1)}ds =1-1/x.
-  $$
-  -/)
-  (latexEnv := "lemma")]
 lemma formulaGtOne (x_gt_one : 1 < x) (σ_pos : 0 < σ) :
     VerticalIntegral' (fun s ↦ x^s / (s * (s + 1))) σ = 1 - 1 / x := by
-  /-- Let $f(s) = x^s/(s(s+1))$. Then $f$ is holomorphic on $\C \setminus {0,-1}$. -/
+  /- Let $f(s) = x^s/(s(s+1))$. Then $f$ is holomorphic on $\C \setminus {0,-1}$. -/
   set f : ℂ → ℂ := (fun s ↦ x^s / (s * (s + 1)))
-  /-- First pull the contour from $(\sigma)$ to $(-1/2)$, picking up a residue $1$ at $s=0$. -/
+  /- First pull the contour from $(\sigma)$ to $(-1/2)$, picking up a residue $1$ at $s=0$. -/
   rw [residuePull1 x_gt_one σ_pos]
-  /-- Next pull the contour from $(-1/2)$ to $(-3/2)$, picking up a residue $-1/x$ at
+  /- Next pull the contour from $(-1/2)$ to $(-3/2)$, picking up a residue $-1/x$ at
   $s=-1$. -/
   rw [residuePull2 x_gt_one]
-  /-- Then pull the contour all the way to $(\sigma')$ with $\sigma'<-3/2$. -/
+  /- Then pull the contour all the way to $(\sigma')$ with $\sigma'<-3/2$. -/
   have contourPull₃ (σ' σ'' : ℝ) (hσ' : σ' ≤ -3/2) (hσ'' : σ'' ≤ -3/2) :
       VerticalIntegral' f σ' = VerticalIntegral' f σ'' :=
     contourPull3 x_gt_one hσ' hσ''
-  /-- For $\sigma' < -3/2$, the integral is bounded by
+  /- For $\sigma' < -3/2$, the integral is bounded by
   $x^{\sigma'}\int_\R\frac{1}{|(1+t ^ 2)(2+t ^ 2)|^{1/2}}dt$. -/
   have VertIntBound : ∃ C, ∀ σ' < -3/2, ‖VerticalIntegral' f σ'‖ ≤ C * x ^ σ' :=
     vertIntBoundLeft (by linarith : 0 < x)
-  /-- Therefore $\int_{(\sigma')}\to 0$ as $\sigma'\to\infty$. -/
+  /- Therefore $\int_{(\sigma')}\to 0$ as $\sigma'\to\infty$. -/
   have AbsVertIntTendsto :
       Tendsto ((‖·‖ : ℂ → ℝ) ∘ (VerticalIntegral' f)) atBot (𝓝 0) := by
     obtain ⟨C, hC⟩ := VertIntBound
@@ -1049,23 +751,11 @@ lemma formulaGtOne (x_gt_one : 1 < x) (σ_pos : 0 < σ) :
     · filter_upwards using fun _ ↦ norm_nonneg _
     · filter_upwards [eventually_lt_atBot (-3/2)]
       (conv at hC => intro σ hσ; rw [mul_comm]); exact fun _ ↦ hC _
-  /-- So pulling contours gives $\int_{(-3/2)}=0$. -/
+  /- So pulling contours gives $\int_{(-3/2)}=0$. -/
   rw [limitOfConstantLeft (σ := -3/2) (Eq.le rfl) contourPull₃ ?_]
   · ring
   · exact tendsto_zero_iff_norm_tendsto_zero.mpr AbsVertIntTendsto
 
 
-blueprint_comment /--
-The two together give the Perron formula. (Which doesn't need to be a separate lemma.)
-
-For $x>0$ and $\sigma>0$, we have
-$$
-\frac1{2\pi i}
-\int_{(\sigma)}\frac{x^s}{s(s+1)}ds = \begin{cases}
-1-\frac1x & \text{ if }x>1\\
-0 & \text{ if } x<1
-\end{cases}.
-$$
--/
 
 end Perron

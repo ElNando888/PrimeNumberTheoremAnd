@@ -1,15 +1,5 @@
-import Architect
 import PrimeNumberTheoremAnd.Defs
 
-blueprint_comment /--
-\section{Numerical content of eSHP}
-
-Purely numerical calculations from \cite{eSHP}.  This is kept in a
-separate file from the main file to avoid heavy recompilations.
-Because of this, this file should not import any other files from
-the PNT+ project, other than further numerical data files.
-
--/
 
 namespace eSHP
 

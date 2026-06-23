@@ -1,18 +1,9 @@
-import Architect
 import Mathlib.MeasureTheory.Measure.Stieltjes
 import PrimeNumberTheoremAnd.MediumPNT
 import PrimeNumberTheoremAnd.IEANTN.SecondaryDefinitions
 import PrimeNumberTheoremAnd.IEANTN.RosserSchoenfeld.RosserSchoenfeldPrime_tables
 
-blueprint_comment /--
-\section{The prime number bounds of Rosser and Schoenfeld}\label{rs-prime-sec}
--/
 
-blueprint_comment /--
-In this section we formalize the prime number bounds of Rosser and Schoenfeld \cite{rs-prime}.
-
-TODO: Add more results and proofs here, and reorganize the blueprint
--/
 
 namespace RS_prime
 
@@ -75,13 +66,6 @@ theorem pntBigO : (θ - id) =O[atTop] fun (x : ℝ) ↦ x / log x ^ 2 := by
     norm_num at this
     exact this
 
-@[blueprint
-  "rs-pnt"
-  (title := "A medium version of the prime number theorem")
-  (statement := /-- $\vartheta(x) = x + O( x / \log^2 x)$. -/)
-  (proof := /-- This in principle follows by establishing an analogue of Theorem \ref{chebyshev-asymptotic}, using mediumPNT in place of weakPNT. -/)
-  (latexEnv := "theorem")
-  (discussion := 597)]
 theorem pnt : ∃ C ≥ 0, ∀ x ≥ 2, |θ x - x| ≤ C * x / log x ^ 2 := by
   obtain ⟨c, hc⟩ := isBigO_iff'.1 pntBigO
   obtain ⟨N, hN⟩ := eventually_atTop.1 hc.2
@@ -108,13 +92,6 @@ theorem pnt : ∃ C ≥ 0, ∀ x ≥ 2, |θ x - x| ≤ C * x / log x ^ 2 := by
   · refine ⟨c, hc.1.le, fun x hx => ?_⟩
     simpa [abs_of_nonneg (by grind : 0 ≤ x), mul_div] using hN x (hn.le.trans hx)
 
-@[blueprint
-  "theta-stieltjes"
-  (title := "The Chebyshev function is Stieltjes")
-  (statement := /-- The function $\vartheta(x) = \sum_{p \leq x} \log p$ defines a Stieltjes function (monotone and right continuous). -/)
-  (proof := /-- Trivial -/)
-  (latexEnv := "sublemma")
-  (discussion := 598)]
 noncomputable def θ.Stieltjes : StieltjesFunction ℝ := {
   toFun := θ
   mono' := theta_mono
@@ -339,13 +316,6 @@ lemma pre_413_measure_inter {x : ℝ} (hx : 2 ≤ x) (y : Finset.Ico 1 ⌊x⌋�
             linarith
       simp
 
-@[blueprint
-  "rs-pre-413"
-  (title := "RS-prime display before (4.13)")
-  (statement := /-- $\sum_{p \leq x} f(p) = \int_{2}^x \frac{f(y)}{\log y}\ d\vartheta(y)$. -/)
-  (proof := /-- This follows from the definition of the Stieltjes integral. -/)
-  (latexEnv := "sublemma")
-  (discussion := 599)]
 theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x + 1))) (hx : 2 ≤ x) :
     ∑ p ∈ filter Prime (Iic ⌊x⌋₊), f p =
       ∫ y in Set.Icc 2 x, f y / log y ∂θ.Stieltjes.measure := by
@@ -490,13 +460,6 @@ theorem pre_413 {f : ℝ → ℝ} {x : ℝ} (hf : ContinuousOn f (Set.Icc 2 (x +
     · simp
       grind
 
-@[blueprint
-  "rs-413"
-  (title := "RS equation (4.13)")
-  (statement := /-- $\sum_{p \leq x} f(p) = \frac{f(x) \vartheta(x)}{\log x} - \int_2^x \vartheta(y) \frac{d}{dy}( \frac{f(y)}{\log y} )\ dy.$ -/)
-  (proof := /-- Follows from Sublemma \ref{rs-pre-413} and integration by parts. -/)
-  (latexEnv := "sublemma")
-  (discussion := 650)]
 theorem eq_413 {f : ℝ → ℝ} {x : ℝ} (hx : 2 ≤ x) (hf : ∀ t ∈ Set.Icc 2 x, DifferentiableAt ℝ f t)
     (hd : IntervalIntegrable (fun t => deriv (fun s ↦ f s / log s) t) volume 2 x) :
     ∑ p ∈ filter Prime (Iic ⌊x⌋₊), f p = f x * θ x / log x -
@@ -518,15 +481,6 @@ theorem eq_413 {f : ℝ → ℝ} {x : ℝ} (hx : 2 ≤ x) (hf : ∀ t ∈ Set.Ic
     have : log t ≠ 0 := by simp; grind
     fun_prop (disch := grind)
 
-@[blueprint
-  "rs-414"
-  (title := "RS equation (4.14)")
-  (statement := /--
-  $$\sum_{p \leq x} f(p) = \int_2^x \frac{f(y)\ dy}{\log y} + \frac{2 f(2)}{\log 2} $$
-  $$ + \frac{f(x) (\vartheta(x) - x)}{\log x} - \int_2^x (\vartheta(y) - y) \frac{d}{dy}( \frac{f(y)}{\log y} )\ dy.$$ -/)
-  (proof := /-- Follows from Sublemma \ref{rs-413} and integration by parts. -/)
-  (latexEnv := "sublemma")
-  (discussion := 600)]
 theorem eq_414 {f : ℝ → ℝ} {x : ℝ} (hx : 2 ≤ x) (hf : ∀ t ∈ Set.Icc 2 x, DifferentiableAt ℝ f t)
     (hd : IntervalIntegrable (fun t => deriv (fun s ↦ f s / log s) t) volume 2 x) :
     ∑ p ∈ filter Prime (Iic ⌊x⌋₊), f p =
@@ -596,11 +550,6 @@ theorem eq_414 {f : ℝ → ℝ} {x : ℝ} (hx : 2 ≤ x) (hf : ∀ t ∈ Set.Ic
     · exact (hd.continuousOn_mul (by fun_prop)).congr_ae (hoc ▸ this)
   _ = _ := by ring
 
-@[blueprint
-  "rs-416"
-  (title := "RS equation (4.16)")
-  (statement := /--
-  $$L_f := \frac{2f(2)}{\log 2} - \int_2^\infty (\vartheta(y) - y) \frac{d}{dy} (\frac{f(y)}{\log y})\ dy.$$ -/)]
 noncomputable def L (f : ℝ → ℝ) : ℝ :=
     2 * f 2 / Real.log 2 - ∫ y in Set.Ioi 2, (θ y - y) * deriv (fun t ↦ f t / log t) y
 
@@ -701,15 +650,6 @@ theorem integrableOn_deriv {f : ℝ → ℝ} (hf : DifferentiableOn ℝ f (Set.I
     · simpa using intervalIntegrable_inv_log_pow 2 1 (by linarith : 1 < (2 : ℝ)) x
     · simpa using intervalIntegrable_inv_log_pow 2 2 (by linarith : 1 < (2 : ℝ)) x
 
-@[blueprint
-  "rs-415"
-  (title := "RS equation (4.15)")
-  (statement := /--
-  $$\sum_{p \leq x} f(p) = \int_2^x \frac{f(y)\ dy}{\log y} + L_f $$
-  $$ + \frac{f(x) (\vartheta(x) - x)}{\log x} + \int_x^\infty (\vartheta(y) - y) \frac{d}{dy}( \frac{f(y)}{\log y} )\ dy.$$ -/)
-  (proof := /-- Follows from Sublemma \ref{rs-414} and Definition \ref{rs-416}. -/)
-  (latexEnv := "sublemma")
-  (discussion := 601)]
 theorem eq_415 {f : ℝ → ℝ} (hf : ∀ t ∈ Set.Ici 2, DifferentiableAt ℝ f t) {x : ℝ} (hx : 2 ≤ x)
     (hft : IntegrableOn (fun y ↦ (θ y - y) * deriv (fun t ↦ f t / log t) y) (Set.Ioi 2) volume)
     (hfi : IntervalIntegrable (fun t ↦ deriv (fun s ↦ f s / Real.log s) t) volume 2 x) :
@@ -719,28 +659,10 @@ theorem eq_415 {f : ℝ → ℝ} (hf : ∀ t ∈ Set.Ici 2, DifferentiableAt ℝ
     (hft.mono_set (Set.Ioi_subset_Ioi hx))]
   ring
 
-@[blueprint
-  "rs-417"
-  (title := "RS equation (4.17)")
-  (statement := /--
-  $$\pi(x) = \frac{\vartheta(x)}{\log x} + \int_2^x \frac{\vartheta(y)\ dy}{y \log^2 y}.$$
--/)
-  (proof := /-- Follows from Sublemma \ref{rs-413} applied to $f(t) = 1$. -/)
-  (latexEnv := "sublemma")
-  (discussion := 602)]
 theorem eq_417 {x : ℝ} (hx : 2 ≤ x) :
     pi x = θ x / log x + ∫ y in 2..x, θ y / (y * log y ^ 2) := by
   exact Chebyshev.primeCounting_eq_theta_div_log_add_integral hx
 
-@[blueprint
-  "rs-418"
-  (title := "RS equation (4.18)")
-  (statement := /--
-  $$\sum_{p \leq x} \frac{1}{p} = \frac{\vartheta(x)}{x \log x} + \int_2^x \frac{\vartheta(y) (1 + \log y)\ dy}{y^2 \log^2 y}.$$
--/)
-  (proof := /-- Follows from Sublemma \ref{rs-413} applied to $f(t) = 1/t$. -/)
-  (latexEnv := "sublemma")
-  (discussion := 652)]
 theorem eq_418 {x : ℝ} (hx : 2 ≤ x) :
     ∑ p ∈ filter Prime (Iic ⌊x⌋₊), 1 / (p : ℝ) = θ x / (x * log x) +
     ∫ y in 2..x, θ y * (1 + log y) / (y ^ 2 * log y ^ 2) := by
@@ -781,11 +703,6 @@ theorem ioiIntegral_tendsto_zero {ι E : Type*} [NormedAddCommGroup E] [NormedSp
   exact Tendsto.congr' this (sub_self (∫ x in Set.Ioi a, f x ∂μ) ▸ (Tendsto.const_sub _ <|
     intervalIntegral_tendsto_integral_Ioi a hfi hb))
 
-@[blueprint
-  "Meissel-Mertens-constant"
-  (title := "Meissel-Mertens constant B")
-  (statement := /--
-  $B := \lim_{x \to \infty} \left( \sum_{p \leq x} \frac{1}{p} - \log \log x \right)$. -/)]
 noncomputable def _root_.meisselMertensConstant : ℝ := - log (log 2) + L (fun x => 1 / x)
 
 theorem integrableOn_deriv_inv_div_log : IntegrableOn (fun y ↦ (θ y - y) *
@@ -812,8 +729,6 @@ theorem meisselMertensConstant_identity {x : ℝ} (hx : 2 ≤ x) :
     (integrableOn_deriv_inv_div_log.2 x hx), integral_eq_loglog, meisselMertensConstant]
   ring
 
-@[blueprint
-  "rs-419"]
 theorem mertens_second_theorem : Filter.atTop.Tendsto (fun x : ℝ ↦
     ∑ p ∈ filter Nat.Prime (Iic ⌊x⌋₊), 1 / (p : ℝ) - log (log x)) (𝓝 meisselMertensConstant) := by
   have lem : ∀ᶠ x in atTop, meisselMertensConstant + ((θ x - x) / (x * log x) +
@@ -836,16 +751,6 @@ theorem mertens_second_theorem : Filter.atTop.Tendsto (fun x : ℝ ↦
       · exact mul_nonneg (h1 hy).le (h2 hy)
     · exact ((tendsto_pow_atTop (by linarith : 3 ≠ 0)).comp tendsto_log_atTop).const_div_atTop C
 
-@[blueprint
-  "rs-419"
-  (title := "RS equation (4.19) and Mertens' second theorem")
-  (statement := /--
-  $$\sum_{p \leq x} \frac{1}{p} = \log \log x + B + \frac{\vartheta(x) - x}{x \log x} $$
-  $$ - \int_2^x \frac{(\vartheta(y)-y) (1 + \log y)\ dy}{y^2 \log^2 y}.$$
--/)
-  (proof := /-- Follows from Sublemma \ref{rs-413} applied to $f(t) = 1/t$. One can also use this identity to demonstrate convergence of the limit defining $B$.-/)
-  (latexEnv := "sublemma")
-  (discussion := 603)]
 theorem eq_419 {x : ℝ} (hx : 2 ≤ x) :
     ∑ p ∈ filter Prime (Iic ⌊x⌋₊), 1 / (p : ℝ) =
     log (log x) + meisselMertensConstant + (θ x - x) / (x * log x)
@@ -861,8 +766,6 @@ theorem eq_419 {x : ℝ} (hx : 2 ≤ x) :
     ring
   congr
 
-@[blueprint
-  "rs-419"]
 theorem mertens_second_theorem' :
     ∃ C, ∀ x ≥ 2, |∑ p ∈ filter Prime (Iic ⌊x⌋₊), 1 / (p : ℝ) - log (log x)| ≤ C := by
   obtain ⟨C, hC⟩ := pnt
@@ -887,11 +790,6 @@ theorem mertens_second_theorem' :
       apply abs_nonneg
     · exact integrableOn_deriv_inv_div_log.1.abs
 
-@[blueprint
-  "Mertens-constant"
-  (title := "Mertens constant E")
-  (statement := /--
-  $E := \lim_{x \to \infty} \left( \sum_{p \leq x} \frac{\log p}{p} - \log x \right)$. -/)]
 noncomputable def _root_.mertensConstant : ℝ := - Real.log 2 + L (fun x => log x / x)
 
 lemma log_div_log_eq {x : ℝ} (hx : 1 < x) : log x / x / log x = x⁻¹ := by
@@ -921,16 +819,6 @@ theorem integrableOn_deriv_inv : IntegrableOn (fun y ↦ - ((θ y - y) / y ^ 2))
     _ ≤ C * a / Real.log a ^ 2 / a ^ 2 := by grw [hC.2 a ha.le]; simp
     _ = _ := by field_simp
 
-@[blueprint
-  "rs-420"
-  (title := "RS equation (4.19) and Mertens' first theorem")
-  (statement := /--
-  $$\sum_{p \leq x} \frac{\log p}{p} = \log x + E + \frac{\vartheta(x) - x}{x} $$
-  $$ - \int_2^x \frac{(\vartheta(y)-y)\ dy}{y^2}.$$
--/)
-  (proof := /-- Follows from Sublemma \ref{rs-413} applied to $f(t) = \log t / t$.  Convergence will need Theorem \ref{rs-pnt}. -/)
-  (latexEnv := "sublemma")
-  (discussion := 604)]
 theorem eq_420 {x : ℝ} (hx : 2 ≤ x) :
     ∑ p ∈ filter Prime (Iic ⌊x⌋₊), Real.log p / p =
     log x + mertensConstant + (θ x - x) / x - ∫ y in Set.Ioi x, (θ y - y) / (y ^ 2) := by
@@ -953,8 +841,6 @@ theorem eq_420 {x : ℝ} (hx : 2 ≤ x) :
   · exact (integrableOn_deriv_inv.2 x hx).congr fun y hy =>
       (deriv_eq (Set.uIoc_of_le hx ▸ hy).1.le).symm
 
-@[blueprint
-  "rs-420"]
 theorem mertens_first_theorem : Filter.atTop.Tendsto (fun x : ℝ ↦
     ∑ p ∈ filter Nat.Prime (Iic ⌊x⌋₊), Real.log p / p - log x) (𝓝 mertensConstant) := by
   have lem : ∀ᶠ x in atTop, mertensConstant + (θ x - x) / x
@@ -975,8 +861,6 @@ theorem mertens_first_theorem : Filter.atTop.Tendsto (fun x : ℝ ↦
       · grind
     · exact ((tendsto_pow_atTop (by linarith : 2 ≠ 0)).comp tendsto_log_atTop).const_div_atTop C
 
-@[blueprint
-  "rs-420"]
 theorem mertens_first_theorem' :
     ∃ C, ∀ x ≥ 2, |∑ p ∈ filter Prime (Iic ⌊x⌋₊), Real.log p / p - Real.log x| ≤ C := by
   obtain ⟨C, hC⟩ := pnt
@@ -1001,10 +885,6 @@ theorem mertens_first_theorem' :
 
 
 
-@[blueprint
-  "rs-psi-upper"
-  (title := "RS Theorem 12")
-  (statement := /-- We have $\psi(x) < c_0 x$ for all $x>0$. -/)]
 theorem theorem_12 {x : ℝ} (hx : 0 < x) : ψ x < c₀ * x := by sorry
 
 end RS_prime

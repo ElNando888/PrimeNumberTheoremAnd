@@ -1,4 +1,3 @@
-import Architect
 import Mathlib.Analysis.Meromorphic.Basic
 import PrimeNumberTheoremAnd.ResidueCalcOnRectangles
 
@@ -9,11 +8,6 @@ open scoped Interval
 /-- A function is `MeromorphicOnRectangle` if it's holomorphic off of a
   finite set of `poles`, none of which is on the boundary of the rectangle
   (so the function is continuous there). -/
-@[blueprint (statement := /--
-  A function $f$ is Meromorphic on a rectangle with corners $z$ and $w$
-  if it is holomorphic off a (finite) set of poles, none of which are on
-  the boundary of the rectangle.
-  -/)]
 class MeromorphicOnRectangle (f : ℂ → ℂ) (poles : Finset ℂ) (z w : ℂ) : Prop where
   holomorphicOn : HolomorphicOn f ((Rectangle z w) ∩ polesᶜ)
   hasPoleAt : ∀ p ∈ poles, MeromorphicAt f p
@@ -32,33 +26,8 @@ class MeromorphicOnRectangle (f : ℂ → ℂ) (poles : Finset ℂ) (z w : ℂ) 
 --       ∑ p in poles, RectangleIntegral f (p-(c+c*I)) (p+c+c*I) := by
 --   sorry_using [MeromorphicOnRectangle, RectangleIntegral]
 
-blueprint_comment /--
-A meromorphic function has a pole of finite order.
-\begin{definition}\label{PoleOrder}
-If $f$ has a pole at $z_0$, then there is an integer $n$ such that
-$$
-\lim_{z\to z_0} (z-z_0)^n f(z) = c \neq 0.
-$$
-\end{definition}
--/
 
-blueprint_comment /--
-If a meromorphic function $f$ has a pole at $z_0$, then the residue of
-$f$ at $z_0$ is the coefficient of $1/(z-z_0)$ in the Laurent series of
-$f$ around $z_0$.
-\begin{definition}\label{Residue}
-If $f$ has a pole of order $n$ at $z_0$, then
-$$
-Res_{z_0} f =
-  \lim_{z\to z_0}\frac1{(n-1)!}
-    (\partial/\partial z)^{n-1}[(z-z_0)^{n-1}f(z)].
-$$
-\end{definition}
--/
 
-blueprint_comment /--
-We can evaluate a small integral around a pole by taking the residue.
--/
 -- @[blueprint
 --   (statement := /--
 --     If $f$ has a pole at $z_0$, then every small enough rectangle
@@ -118,10 +87,6 @@ We can evaluate a small integral around a pole by taking the residue.
 --   -/
 --   sorry_using [PoleOrder, Residue, RectangleIntegral, RectangleIntegralEqSumOfRectangles]
 
-blueprint_comment /--
-If a function $f$ is meromorphic at $z_0$ with a pole of order $n$, then
-the residue at $z_0$ of the logarithmic derivative is $-n$ exactly.
--/
 -- @[blueprint
 --   (statement := /--
 --   If $f$ has a pole of order $n$ at $z_0$, then

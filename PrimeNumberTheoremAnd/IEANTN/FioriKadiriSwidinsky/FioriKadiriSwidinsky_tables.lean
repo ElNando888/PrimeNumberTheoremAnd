@@ -1,12 +1,5 @@
-import Architect
 import PrimeNumberTheoremAnd.IEANTN.LogTables
 
-blueprint_comment /--
-\section{Numerical content of FKS}
-
-Purely numerical calculations from \cite{FKS}.  This is kept in a separate file from the main file to avoid heavy recompilations.  Because of this, this file should not import any other files from the PNT+ project, other than further numerical data files.
-
--/
 
 namespace FKS
 

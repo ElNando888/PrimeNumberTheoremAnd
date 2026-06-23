@@ -1,13 +1,6 @@
-import Architect
 import Mathlib.Tactic
 
 
-blueprint_comment /--
-\section{Numerical content of BKLNW Appendix A}
-
-Purely numerical calculations from Appendix A of \cite{BKLNW}.  This is kept in a separate file from the main file to avoid heavy recompilations.  Because of this, this file should not import any other files from the PNT+ project, other than further numerical data files.
-
--/
 namespace BKLNW_app
 lemma le_of_not_lt {a b : ℝ} (h : ¬ b < a) : a ≤ b := by
   by_contra h'
@@ -836,13 +829,6 @@ noncomputable def table_8_ε' (b : ℝ) : ℝ :=
   else 7.57240e-50 * table_8_margin
 
 set_option maxRecDepth 10000 in
-@[blueprint
-  "bklnw-table-8-compat"
-  (title := "BKLNW Table 8 vs expanded Table 8")
-  (statement := /-- The value of $\eps(b)$ arising from Table 8 of \cite{BKLNW} is weaker than that from the expanded version of Table 8 available in the arXiv.-/)
-  (proof := /-- Routine computation. -/)
-  (latexEnv := "sublemma")
-  (discussion := 807)]
 theorem table_8_ε.le_simp (b : ℝ) (hb : b ≥ 20) : table_8_ε b ≤ table_8_ε' b := by
   classical
   have h20 : ¬ b < 20 := by linarith [hb]

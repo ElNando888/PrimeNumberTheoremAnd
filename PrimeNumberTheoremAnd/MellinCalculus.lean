@@ -1,4 +1,3 @@
-import Architect
 import Batteries.Tactic.Lemma
 import Mathlib.Algebra.GroupWithZero.Units.Basic
 import Mathlib.Analysis.MellinTransform
@@ -200,18 +199,6 @@ lemma deriv.comp_ofReal' {e : ℂ → ℂ} (hf : Differentiable ℂ e) :
 
 
 /-- *Need differentiability, and decay at `0` and `∞`* -/
-@[blueprint
-  (title := "PartialIntegration")
-  (statement := /--
-  Let $f, g$ be once differentiable functions from $\mathbb{R}_{>0}$ to $\mathbb{C}$ so that $fg'$
-  and $f'g$ are both integrable, and $f\cdot g (x)\to 0$ as $x\to 0^+,\infty$.
-  Then
-  $$
-  \int_0^\infty f(x)g'(x) dx = -\int_0^\infty f'(x)g(x)dx.
-  $$
-  -/)
-  (proof := /-- Partial integration. -/)
-  (latexEnv := "lemma")]
 lemma PartialIntegration (f g : ℝ → ℂ)
     (fDiff : DifferentiableOn ℝ f (Ioi 0))
     (gDiff : DifferentiableOn ℝ g (Ioi 0))
@@ -250,68 +237,14 @@ lemma PartialIntegration_of_support_in_Icc {a b : ℝ} (f g : ℝ → ℂ) (ha :
   have lim_at_inf : Tendsto (f * g) atTop (𝓝 0) := TendstoAtTop_of_support_in_Icc (f * g) fgSupp
   apply PartialIntegration f g fDiff gDiff fDerivgInt gDerivfInt lim_at_zero lim_at_inf
 
-blueprint_comment /--
-In this section, we define the Mellin transform (already in Mathlib, thanks to David Loeffler),
-prove its inversion formula, and
-derive a number of important properties of some special functions and bumpfunctions.
-
-Def: (Already in Mathlib)
-Let $f$ be a function from $\mathbb{R}_{>0}$ to $\mathbb{C}$. We define the Mellin transform of
-$f$ to be the function $\mathcal{M}(f)$ from $\mathbb{C}$ to $\mathbb{C}$ defined by
-$$\mathcal{M}(f)(s) = \int_0^\infty f(x)x^{s-1}dx.$$
-
-[Note: My preferred way to think about this is that we are integrating over the multiplicative
-group $\mathbb{R}_{>0}$, multiplying by a (not necessarily unitary!) character $|\cdot|^s$, and
-integrating with respect to the invariant Haar measure $dx/x$. This is very useful in the kinds
-of calculations carried out below. But may be more difficult to formalize as things now stand. So
-we might have clunkier calculations, which ``magically'' turn out just right - of course they're
-explained by the aforementioned structure...]
-
--/
 
 
 local notation (name := mellintransform) "𝓜" => mellin
 
 
-blueprint_comment /--
-Finally, we need Mellin Convolutions and properties thereof.
--/
-@[blueprint
-  (title := "MellinConvolution")
-  (statement := /--
-  Let $f$ and $g$ be functions from $\mathbb{R}_{>0}$ to $\mathbb{C}$. Then we define the
-  Mellin convolution of $f$ and $g$ to be the function $f\ast g$ from $\mathbb{R}_{>0}$
-  to $\mathbb{C}$ defined by
-  $$(f\ast g)(x) = \int_0^\infty f(y)g(x/y)\frac{dy}{y}.$$
-  -/)]
 noncomputable def MellinConvolution (f g : ℝ → 𝕂) (x : ℝ) : 𝕂 :=
   ∫ y in Ioi 0, f y * g (x / y) / y
 
-blueprint_comment /--
-Let us start with a simple property of the Mellin convolution.
--/
-@[blueprint
-  (title := "MellinConvolutionSymmetric")
-  (statement := /--
-  Let $f$ and $g$ be functions from $\mathbb{R}_{>0}$ to $\mathbb{R}$ or $\mathbb{C}$, for $x\neq0$,
-  $$
-    (f\ast g)(x)=(g\ast f)(x)
-    .
-  $$
-  -/)
-  (proof := /--
-  By Definition \ref{MellinConvolution},
-  $$
-    (f\ast g)(x) = \int_0^\infty f(y)g(x/y)\frac{dy}{y}
-  $$
-  in which we change variables to $z=x/y$:
-  $$
-    (f\ast g)(x) = \int_0^\infty f(x/z)g(z)\frac{dz}{z}
-    =(g\ast f)(x)
-    .
-  $$
-  -/)
-  (latexEnv := "lemma")]
 lemma MellinConvolutionSymmetric (f g : ℝ → 𝕂) {x : ℝ} (xpos : 0 < x) :
     MellinConvolution f g x = MellinConvolution g f x := by
   unfold MellinConvolution
@@ -350,45 +283,7 @@ lemma support_MellinConvolution (f g : ℝ → 𝕂) :
     (MellinConvolution f g).support ⊆ f.support * g.support :=
   support_MellinConvolution_subsets subset_rfl subset_rfl
 
-blueprint_comment /--
-The Mellin transform of a convolution is the product of the Mellin transforms.
--/
 set_option backward.isDefEq.respectTransparency false in
-@[blueprint
-  (title := "MellinConvolutionTransform")
-  (statement := /--
-  Let $f$ and $g$ be functions from $\mathbb{R}_{>0}$ to $\mathbb{C}$ such that
-  \begin{equation}
-    (x,y)\mapsto f(y)\frac{g(x/y)}yx^{s-1}
-    \label{eq:assm_integrable_Mconv}
-  \end{equation}
-  is absolutely integrable on $[0,\infty)^2$.
-  Then
-  $$\mathcal{M}(f\ast g)(s) = \mathcal{M}(f)(s)\mathcal{M}(g)(s).$$
-  -/)
-  (proof := /--
-  By Definitions \ref{MellinTransform} and \ref{MellinConvolution}
-  $$
-    \mathcal M(f\ast g)(s)=
-    \int_0^\infty \int_0^\infty f(y)g(x/y)x^{s-1}\frac{dy}ydx
-  $$
-  By (\ref{eq:assm_integrable_Mconv}) and Fubini's theorem,
-  $$
-    \mathcal M(f\ast g)(s)=
-    \int_0^\infty \int_0^\infty f(y)g(x/y)x^{s-1}dx\frac{dy}y
-  $$
-  in which we change variables from $x$ to $z=x/y$:
-  $$
-    \mathcal M(f\ast g)(s)=
-    \int_0^\infty \int_0^\infty f(y)g(z)y^{s-1}z^{s-1}dzdy
-  $$
-  which, by Definition \ref{MellinTransform}, is
-  $$
-    \mathcal M(f\ast g)(s)=
-    \mathcal M(f)(s)\mathcal M(g)(s)
-    .
-  $$
-  -/)]
 lemma MellinConvolutionTransform (f g : ℝ → ℂ) (s : ℂ)
     (hf : IntegrableOn (fun x y ↦ f y * g (x / y) / (y : ℂ) * (x : ℂ) ^ (s - 1)).uncurry
       (Ioi 0 ×ˢ Ioi 0)) :
@@ -483,34 +378,8 @@ lemma MellinOfPsi_aux {ν : ℝ → ℝ} (diffν : ContDiff ℝ 1 ν)
     conv => lhs; rhs; intro; rw [← mul_one_div, mul_comm]
     rw [integral_const_mul]
 
-blueprint_comment /--
-The $\nu$ function has Mellin transform $\mathcal{M}(\nu)(s)$ which is entire and decays (at
-least) like $1/|s|$.
-
-[Of course it decays faster than any power of $|s|$, but it turns out that we will just need one
-power.]
--/
 
 -- filter-free version:
-@[blueprint
-  (title := "MellinOfPsi")
-  (statement := /--
-  The Mellin transform of $\nu$ is
-  $$\mathcal{M}(\nu)(s) =  O\left(\frac{1}{|s|}\right),$$
-  as $|s|\to\infty$ with $\sigma_1 \le \Re(s) \le 2$.
-  -/)
-  (proof := /--
-  Integrate by parts:
-  $$
-  \left|\int_0^\infty \nu(x)x^s\frac{dx}{x}\right| =
-  \left|-\int_0^\infty \nu'(x)\frac{x^{s}}{s}dx\right|
-  $$
-  $$
-  \le \frac{1}{|s|} \int_{1/2}^2|\nu'(x)|x^{\Re(s)}dx.
-  $$
-  Since $\Re(s)$ is bounded, the right-hand side is bounded by a
-  constant times $1/|s|$.
-  -/)]
 lemma MellinOfPsi {ν : ℝ → ℝ} (diffν : ContDiff ℝ 1 ν)
     (suppν : ν.support ⊆ Set.Icc (1 / 2) 2) :
     ∃ C > 0, ∀ (σ₁ : ℝ) (_ : 0 < σ₁) (s : ℂ) (_ : σ₁ ≤ s.re) (_ : s.re ≤ 2),
@@ -569,35 +438,11 @@ lemma MellinOfPsi {ν : ℝ → ℝ} (diffν : ContDiff ℝ 1 ν)
 
 
 
-blueprint_comment /--
-We can make a delta spike out of this bumpfunction, as follows.
--/
 
-@[blueprint
-  (title := "DeltaSpike")
-  (statement := /--
-  Let $\nu$ be a bumpfunction supported in $[1/2,2]$. Then for any $\epsilon>0$, we define the
-  delta spike $\nu_\epsilon$ to be the function from $\mathbb{R}_{>0}$ to $\mathbb{C}$ defined by
-  $$\nu_\epsilon(x) = \frac{1}{\epsilon}\nu\left(x^{\frac{1}{\epsilon}}\right).$$
-  -/)]
 noncomputable def DeltaSpike (ν : ℝ → ℝ) (ε : ℝ) : ℝ → ℝ :=
   fun x ↦ ν (x ^ (1 / ε)) / ε
 
-blueprint_comment /--
-This spike still has mass one:
--/
 
-@[blueprint
-  (title := "DeltaSpikeMass")
-  (statement := /--
-  For any $\epsilon>0$, we have
-  $$\int_0^\infty \nu_\epsilon(x)\frac{dx}{x} = 1.$$
-  -/)
-  (proof := /--
-  Substitute $y=x^{1/\epsilon}$, and use the fact that $\nu$ has mass one, and that $dx/x$ is Haar
-  measure.
-  -/)
-  (latexEnv := "lemma")]
 lemma DeltaSpikeMass {ν : ℝ → ℝ} (mass_one : ∫ x in Ioi 0, ν x / x = 1) {ε : ℝ}
     (εpos : 0 < ε) : ∫ x in Ioi 0, ((DeltaSpike ν ε) x) / x = 1 :=
   calc
@@ -656,17 +501,7 @@ lemma DeltaSpikeOfRealContinuous {ν : ℝ → ℝ} {ε : ℝ} (εpos : 0 < ε)
     (diffν : ContDiff ℝ 1 ν) : Continuous (fun x ↦ (DeltaSpike ν ε x : ℂ)) :=
   continuous_ofReal.comp <| DeltaSpikeContinuous εpos diffν
 
-blueprint_comment /--
-The Mellin transform of the delta spike is easy to compute.
--/
 set_option backward.isDefEq.respectTransparency false in
-@[blueprint
-  (title := "MellinOfDeltaSpike")
-  (statement := /--
-  For any $\epsilon>0$, the Mellin transform of $\nu_\epsilon$ is
-  $$\mathcal{M}(\nu_\epsilon)(s) = \mathcal{M}(\nu)\left(\epsilon s\right).$$
-  -/)
-  (proof := /-- Substitute $y=x^{1/\epsilon}$, use Haar measure; direct calculation. -/)]
 theorem MellinOfDeltaSpike (ν : ℝ → ℝ) {ε : ℝ} (εpos : ε > 0) (s : ℂ) :
     𝓜 (fun x ↦ (DeltaSpike ν ε x : ℂ)) s = 𝓜 (fun x ↦ (ν x : ℂ)) (ε * s) := by
   unfold DeltaSpike
@@ -678,60 +513,13 @@ theorem MellinOfDeltaSpike (ν : ℝ → ℝ) {ε : ℝ} (εpos : ε > 0) (s : �
 
 
 
-blueprint_comment /--
-In particular, for $s=1$, we have that the Mellin transform of $\nu_\epsilon$ is $1+O(\epsilon)$.
--/
 
-@[blueprint
-  (title := "MellinOfDeltaSpikeAt1")
-  (statement := /--
-  For any $\epsilon>0$, we have
-  $$\mathcal{M}(\nu_\epsilon)(1) =
-  \mathcal{M}(\nu)(\epsilon).$$
-  -/)
-  (proof := /-- This is immediate from the above theorem. -/)
-  (latexEnv := "corollary")]
 lemma MellinOfDeltaSpikeAt1 (ν : ℝ → ℝ) {ε : ℝ} (εpos : ε > 0) :
     𝓜 (fun x ↦ (DeltaSpike ν ε x : ℂ)) 1 = 𝓜 (fun x ↦ (ν x : ℂ)) ε := by
   convert MellinOfDeltaSpike ν εpos 1; simp [mul_one]
 
 
 
-@[blueprint
-  (title := "MellinOfDeltaSpikeAt1-asymp")
-  (statement := /--
-  As $\epsilon\to 0$, we have
-  $$\mathcal{M}(\nu_\epsilon)(1) = 1+O(\epsilon).$$
-  -/)
-  (proof := /--
-  By Lemma \ref{MellinOfDeltaSpikeAt1},
-  $$
-    \mathcal M(\nu_\epsilon)(1)=\mathcal M(\nu)(\epsilon)
-  $$
-  which by Definition \ref{MellinTransform} is
-  $$
-    \mathcal M(\nu)(\epsilon)=\int_0^\infty\nu(x)x^{\epsilon-1}dx
-    .
-  $$
-  Since $\nu(x) x^{\epsilon-1}$ is integrable (because $\nu$ is continuous and compactly
-  supported),
-  $$
-    \mathcal M(\nu)(\epsilon)-\int_0^\infty\nu(x)\frac{dx}x
-    =\int_0^\infty\nu(x)(x^{\epsilon-1}-x^{-1})dx
-    .
-  $$
-  By Taylor's theorem,
-  $$
-    x^{\epsilon-1}-x^{-1}=O(\epsilon)
-  $$
-  so, since $\nu$ is absolutely integrable,
-  $$
-    \mathcal M(\nu)(\epsilon)-\int_0^\infty\nu(x)\frac{dx}x=O(\epsilon)
-    .
-  $$
-  We conclude the proof using Theorem \ref{SmoothExistence}.
-  -/)
-  (latexEnv := "lemma")]
 lemma MellinOfDeltaSpikeAt1_asymp {ν : ℝ → ℝ} (diffν : ContDiff ℝ 1 ν)
     (suppν : ν.support ⊆ Set.Icc (1 / 2) 2)
     (mass_one : ∫ x in Set.Ioi 0, ν x / x = 1) :
@@ -758,22 +546,6 @@ lemma MellinOfDeltaSpikeAt1_asymp {ν : ℝ → ℝ} (diffν : ContDiff ℝ 1 ν
 
 
 
-blueprint_comment /--
-Let $1_{(0,1]}$ be the function from $\mathbb{R}_{>0}$ to $\mathbb{C}$ defined by
-$$1_{(0,1]}(x) = \begin{cases}
-1 & \text{ if }x\leq 1\\
-0 & \text{ if }x>1
-\end{cases}.$$
-This has Mellin transform:
-[Note: this already exists in mathlib]
--/
-@[blueprint
-  (title := "MellinOf1")
-  (statement := /--
-  The Mellin transform of $1_{(0,1]}$ is
-  $$\mathcal{M}(1_{(0,1]})(s) = \frac{1}{s}.$$
-  -/)
-  (proof := /-- This is a straightforward calculation. -/)]
 lemma MellinOf1 (s : ℂ) (h : s.re > 0) :
     𝓜 ((fun x ↦ if 0 < x ∧ x ≤ 1 then 1 else 0)) s = 1 / s := by
   convert (hasMellin_one_Ioc h).right
@@ -781,30 +553,6 @@ lemma MellinOf1 (s : ℂ) (h : s.re > 0) :
 
 
 
-blueprint_comment /--
-What will be essential for us is properties of the smooth version of $1_{(0,1]}$, obtained as the
- Mellin convolution of $1_{(0,1]}$ with $\nu_\epsilon$.
--/
-@[blueprint
-  (title := "Smooth1")
-  (statement := /--
-  Let $\epsilon>0$. Then we define the smooth function $\widetilde{1_{\epsilon}}$ from
-  $\mathbb{R}_{>0}$ to $\mathbb{C}$ by
-  $$\widetilde{1_{\epsilon}} = 1_{(0,1]}\ast\nu_\epsilon.$$
-  -/)
-  (proof := /--
-  Let $c:=2^\epsilon > 1$, in terms of which we wish to prove
-  $$
-    -1 < c \log c - c .
-  $$
-  Letting $f(x):=x\log x - x$, we can rewrite this as $f(1) < f(c)$.
-  Since
-  $$
-    \frac {d}{dx}f(x) = \log x > 0 ,
-  $$
-  $f$ is monotone increasing on [1, \infty), and we are done.
-  -/)
-  (latexEnv := "definition")]
 noncomputable def Smooth1 (ν : ℝ → ℝ) (ε : ℝ) : ℝ → ℝ :=
   MellinConvolution (fun x ↦ if 0 < x ∧ x ≤ 1 then 1 else 0) (DeltaSpike ν ε)
 
@@ -864,9 +612,6 @@ lemma Smooth1Properties_estimate {ε : ℝ} (εpos : 0 < ε) :
 
 
 
-blueprint_comment /--
-In particular, we have the following two properties.
--/
 
 lemma Smooth1Properties_below_aux {x ε : ℝ} (hx : x ≤ 1 - Real.log 2 * ε) (εpos : 0 < ε) :
     x < 2 ^ (-ε) := by
@@ -876,49 +621,6 @@ lemma Smooth1Properties_below_aux {x ε : ℝ} (hx : x ≤ 1 - Real.log 2 * ε) 
   rw [sub_lt_iff_lt_add, add_comm, ← sub_lt_iff_lt_add]
   exact (div_lt_iff₀ εpos).mp <| Smooth1Properties_estimate εpos
 
-@[blueprint
-  (title := "Smooth1Properties-below")
-  (statement := /--
-  Fix $\epsilon>0$. There is an absolute constant $c>0$ so that:
-  If $0 < x \leq (1-c\epsilon)$, then
-  $$\widetilde{1_{\epsilon}}(x) = 1.$$
-  -/)
-  (proof := /--
-  Opening the definition, we have that the Mellin convolution of $1_{(0,1]}$ with $\nu_\epsilon$ is
-  $$
-  \int_0^\infty 1_{(0,1]}(y)\nu_\epsilon(x/y)\frac{dy}{y}
-  =
-  \int_0^1 \nu_\epsilon(x/y)\frac{dy}{y}.
-  $$
-  The support of $\nu_\epsilon$ is contained in $[1/2^\epsilon,2^\epsilon]$, so it suffices to
-  consider $y \in [1/2^\epsilon x,2^\epsilon x]$ for nonzero contributions. If $x < 2^{-\epsilon}$,
-  then the integral is the same as that over $(0,\infty)$:
-  $$
-  \int_0^1 \nu_\epsilon(x/y)\frac{dy}{y}
-  =
-  \int_0^\infty \nu_\epsilon(x/y)\frac{dy}{y},
-  $$
-  in which we change variables to $z=x/y$ (using $x>0$):
-  $$
-  \int_0^\infty \nu_\epsilon(x/y)\frac{dy}{y}
-  =
-  \int_0^\infty \nu_\epsilon(z)\frac{dz}{z},
-  $$
-  which is equal to one by Lemma \ref{DeltaSpikeMass}.
-  We then choose
-  $$
-    c:=\log 2,
-  $$
-  which satisfies
-  $$
-    c > \frac{1-2^{-\epsilon}}\epsilon
-  $$
-  by Lemma \ref{Smooth1Properties_estimate}, so
-  $$
-    1-c\epsilon < 2^{-\epsilon}.
-  $$
-  -/)
-  (latexEnv := "lemma")]
 lemma Smooth1Properties_below {ν : ℝ → ℝ} (suppν : ν.support ⊆ Icc (1 / 2) 2)
     (mass_one : ∫ x in Ioi 0, ν x / x = 1) :
     ∃ (c : ℝ), 0 < c ∧ c = Real.log 2 ∧
@@ -1000,35 +702,6 @@ lemma Smooth1Properties_above_aux2 {x y ε : ℝ} (hε : ε ∈ Ioo 0 1) (hy : y
     rw [ge_iff_le, div_le_iff₀, div_mul_eq_mul_div, le_div_iff₀', mul_comm] <;> try linarith
   · rw [ge_iff_le, le_div_iff₀ <| ypos]; exact (mul_le_iff_le_one_right zero_lt_two).mpr y1
 
-@[blueprint
-  (title := "Smooth1Properties-above")
-  (statement := /--
-  Fix $0<\epsilon<1$. There is an absolute constant $c>0$ so that:
-  if $x\geq (1+c\epsilon)$, then
-  $$\widetilde{1_{\epsilon}}(x) = 0.$$
-  -/)
-  (proof := /--
-  Again the Mellin convolution is
-  $$\int_0^1 \nu_\epsilon(x/y)\frac{dy}{y},$$
-  but now if $x > 2^\epsilon$, then the support of $\nu_\epsilon$ is disjoint
-  from the region of integration, and hence the integral is zero.
-  We choose
-  $$
-    c:=2\log 2
-    .
-  $$
-  By Lemma \ref{Smooth1Properties_estimate},
-  $$
-    c > 2\frac{1-2^{-\epsilon}}\epsilon > 2^\epsilon\frac{1-2^{-\epsilon}}\epsilon
-    =
-    \frac{2^\epsilon-1}\epsilon,
-  $$
-  so
-  $$
-    1+c\epsilon > 2^\epsilon.
-  $$
-  -/)
-  (latexEnv := "lemma")]
 lemma Smooth1Properties_above {ν : ℝ → ℝ} (suppν : ν.support ⊆ Icc (1 / 2) 2) :
     ∃ (c : ℝ), 0 < c ∧ c = 2 * Real.log 2 ∧
       ∀ (ε x) (_ : ε ∈ Ioo 0 1), 1 + c * ε ≤ x → Smooth1 ν ε x = 0 := by
@@ -1087,20 +760,6 @@ lemma MellinConvNonNeg_of_NonNeg {f g : ℝ → ℝ} (f_nonneg : ∀ x > 0, 0 �
     positivity
 
 
-@[blueprint
-  (title := "Smooth1Nonneg")
-  (statement := /--
-  If $\nu$ is nonnegative, then $\widetilde{1_{\epsilon}}(x)$ is nonnegative.
-  -/)
-  (proof := /--
-  By Definitions \ref{Smooth1}, \ref{MellinConvolution} and \ref{DeltaSpike}
-  $$
-    \widetilde{1_\epsilon}(x)
-    =\int_0^\infty 1_{(0,1]}(y)\frac1\epsilon\nu((x/y)^{\frac1\epsilon}) \frac{dy}y
-  $$
-  and all the factors in the integrand are nonnegative.
-  -/)
-  (latexEnv := "lemma")]
 lemma Smooth1Nonneg {ν : ℝ → ℝ} (νnonneg : ∀ x > 0, 0 ≤ ν x) {ε x : ℝ}
     (xpos : 0 < x) (εpos : 0 < ε) : 0 ≤ Smooth1 ν ε x := by
   dsimp [Smooth1]
@@ -1124,31 +783,6 @@ lemma Smooth1LeOne_aux {x ε : ℝ} {ν : ℝ → ℝ} (xpos : 0 < x) (εpos : 0
       field_simp
 
 
-@[blueprint
-  (title := "Smooth1LeOne")
-  (statement := /--
-  If $\nu$ is nonnegative and has mass one, then $\widetilde{1_{\epsilon}}(x)\le 1$, $\forall x>0$.
-  -/)
-  (proof := /--
-  By Definitions \ref{Smooth1}, \ref{MellinConvolution} and \ref{DeltaSpike}
-  $$
-    \widetilde{1_\epsilon}(x)
-    =\int_0^\infty 1_{(0,1]}(y)\frac1\epsilon\nu((x/y)^{\frac1\epsilon}) \frac{dy}y
-  $$
-  and since $1_{(0,1]}(y)\le 1$, and all the factors in the integrand are nonnegative,
-  $$
-    \widetilde{1_\epsilon}(x)\le\int_0^\infty \frac1\epsilon\nu((x/y)^{\frac1\epsilon}) \frac{dy}y
-  $$
-  (because in mathlib the integral of a non-integrable function is $0$, for the inequality above
-  to be true, we must prove that $\nu((x/y)^{\frac1\epsilon})/y$ is integrable; this follows from
-  the computation below).
-  We then change variables to $z=(x/y)^{\frac1\epsilon}$:
-  $$
-    \widetilde{1_\epsilon}(x)\le\int_0^\infty \nu(z) \frac{dz}z
-  $$
-  which by Theorem \ref{SmoothExistence} is 1.
-  -/)
-  (latexEnv := "lemma")]
 lemma Smooth1LeOne {ν : ℝ → ℝ} (νnonneg : ∀ x > 0, 0 ≤ ν x)
     (mass_one : ∫ x in Ioi 0, ν x / x = 1) {ε : ℝ} (εpos : 0 < ε) {x : ℝ} (xpos : 0 < x) :
     Smooth1 ν ε x ≤ 1 := by
@@ -1183,63 +817,6 @@ lemma Smooth1LeOne {ν : ℝ → ℝ} (νnonneg : ∀ x > 0, 0 ≤ ν x)
 
 
 
-blueprint_comment /--
-Combining the above, we have the following three Main Lemmata of this section on the Mellin
-transform of $\widetilde{1_{\epsilon}}$.
--/
-@[blueprint
-  (title := "MellinOfSmooth1a")
-  (statement := /--
-  Fix  $\epsilon>0$. Then the Mellin transform of $\widetilde{1_{\epsilon}}$ is
-  $$\mathcal{M}(\widetilde{1_{\epsilon}})(s) =
-  \frac{1}{s}\left(\mathcal{M}(\nu)\left(\epsilon s\right)\right).$$
-  -/)
-  (proof := /--
-  By Definition \ref{Smooth1},
-  $$
-    \mathcal M(\widetilde{1_\epsilon})(s)
-    =\mathcal M(1_{(0,1]}\ast\nu_\epsilon)(s)
-    .
-  $$
-  We wish to apply Theorem \ref{MellinConvolutionTransform}.
-  To do so, we must prove that
-  $$
-    (x,y)\mapsto 1_{(0,1]}(y)\nu_\epsilon(x/y)/y
-  $$
-  is integrable on $[0,\infty)^2$.
-  It is actually easier to do this for the convolution: $\nu_\epsilon\ast 1_{(0,1]}$, so we use
-  Lemma \ref{MellinConvolutionSymmetric}: for $x\neq0$,
-  $$
-    1_{(0,1]}\ast\nu_\epsilon(x)=\nu_\epsilon\ast 1_{(0,1]}(x)
-    .
-  $$
-  Now, for $x=0$, both sides of the equation are 0, so the equation also holds for $x=0$.
-  Therefore,
-  $$
-    \mathcal M(\widetilde{1_\epsilon})(s)
-    =\mathcal M(\nu_\epsilon\ast 1_{(0,1]})(s)
-    .
-  $$
-  Now,
-  $$
-    (x,y)\mapsto \nu_\epsilon(y)1_{(0,1]}(x/y)\frac{x^{s-1}}y
-  $$
-  has compact support that is bounded away from $y=0$ (specifically
-  $y\in[2^{-\epsilon},2^\epsilon]$ and $x\in(0,y]$), so it is integrable.
-  We can thus apply Theorem \ref{MellinConvolutionTransform} and find
-  $$
-    \mathcal M(\widetilde{1_\epsilon})(s)
-    =\mathcal M(\nu_\epsilon)(s)\mathcal M(1_{(0,1]})(s)
-    .
-  $$
-  By Lemmas \ref{MellinOf1} and \ref{MellinOfDeltaSpike},
-  $$
-    \mathcal M(\widetilde{1_\epsilon})(s)
-    =\frac1s\mathcal M(\nu)(\epsilon s)
-    .
-  $$
-  -/)
-  (latexEnv := "lemma")]
 lemma MellinOfSmooth1a {ν : ℝ → ℝ} (diffν : ContDiff ℝ 1 ν)
     (suppν : ν.support ⊆ Icc (1 / 2) 2)
     {ε : ℝ} (εpos : 0 < ε) {s : ℂ} (hs : 0 < s.re) :
@@ -1314,15 +891,6 @@ lemma MellinOfSmooth1a {ν : ℝ → ℝ} (diffν : ContDiff ℝ 1 ν)
 
 
 
-@[blueprint
-  (title := "MellinOfSmooth1b")
-  (statement := /--
-  Given $0<\sigma_1\le\sigma_2$, for any $s$ such that $\sigma_1\le\mathcal Re(s)\le\sigma_2$,
-  we have
-  $$\mathcal{M}(\widetilde{1_{\epsilon}})(s) = O\left(\frac{1}{\epsilon|s|^2}\right).$$
-  -/)
-  (proof := /-- Use Lemma \ref{MellinOfSmooth1a} and the bound in Lemma \ref{MellinOfPsi}. -/)
-  (latexEnv := "lemma")]
 lemma MellinOfSmooth1b {ν : ℝ → ℝ} (diffν : ContDiff ℝ 1 ν)
     (suppν : ν.support ⊆ Set.Icc (1 / 2) 2) :
     ∃ (C : ℝ) (_ : 0 < C), ∀ (σ₁ : ℝ) (_ : 0 < σ₁)
@@ -1352,17 +920,6 @@ lemma MellinOfSmooth1b {ν : ℝ → ℝ} (diffν : ContDiff ℝ 1 ν)
 
 
 
-@[blueprint
-  (title := "MellinOfSmooth1c")
-  (statement := /--
-  At $s=1$, we have
-  $$\mathcal{M}(\widetilde{1_{\epsilon}})(1) = 1+O(\epsilon)).$$
-  -/)
-  (proof := /--
-  Follows from Lemmas \ref{MellinOfSmooth1a}, \ref{MellinOfDeltaSpikeAt1} and
-  \ref{MellinOfDeltaSpikeAt1_asymp}.
-  -/)
-  (latexEnv := "lemma")]
 lemma MellinOfSmooth1c {ν : ℝ → ℝ} (diffν : ContDiff ℝ 1 ν)
     (suppν : ν.support ⊆ Icc (1 / 2) 2)
     (mass_one : ∫ x in Ioi 0, ν x / x = 1) :
@@ -1378,20 +935,6 @@ lemma MellinOfSmooth1c {ν : ℝ → ℝ} (diffν : ContDiff ℝ 1 ν)
 
 
 
-@[blueprint
-  (title := "Smooth1ContinuousAt")
-  (statement := /--
-  Fix a nonnegative, continuously differentiable function $F$ on $\mathbb{R}$ with support in
-  $[1/2,2]$. Then for any $\epsilon>0$, the function
-  $x \mapsto \int_{(0,\infty)} x^{1+it} \widetilde{1_{\epsilon}}(x) dx$ is continuous at any $y>0$.
-  -/)
-  (proof := /--
-  Use Lemma \ref{MellinconvolutionSymmetric} to write $\widetilde{1_{\epsilon}}(x)$ as an integral
-  over an integral near $1$, in particular avoiding the singularity at $0$. The integrand may be
-  bounded by $2^{\epsilon}\nu_\epsilon(t)$ which is independent of $x$ and we can use dominated
-  convergence to prove continuity.
-  -/)
-  (latexEnv := "lemma")]
 lemma Smooth1ContinuousAt {SmoothingF : ℝ → ℝ}
     (diffSmoothingF : ContDiff ℝ 1 SmoothingF)
     (SmoothingFpos : ∀ x > 0, 0 ≤ SmoothingF x)
