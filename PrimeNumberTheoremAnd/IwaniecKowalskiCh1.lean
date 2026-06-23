@@ -20,9 +20,6 @@ namespace ArithmeticFunction
 /-- `τ` (tau) is the divisor count function, equal to `σ 0`. -/
 abbrev tau : ArithmeticFunction ℕ := σ 0
 
-@[inherit_doc tau]
-scoped notation "τ" => tau
-
 variable {R : Type*}
 
 /--
@@ -89,7 +86,7 @@ theorem sum_moebius_pmul_eq_prod_one_sub {R : Type*} [CommRing R]
     exact sum_divisors_mul_of_coprime h_mul hab (by omega) (by omega)
 
 /-- The Dirichlet convolution of $\zeta$ with itself is $\tau$ (the divisor count function). -/
-theorem zeta_mul_zeta : (ζ : ArithmeticFunction ℕ) * ζ = τ := by
+theorem zeta_mul_zeta : (ζ : ArithmeticFunction ℕ) * ζ = tau := by
   ext n; unfold zeta tau sigma
   simp only [mul_apply, coe_mk, mul_ite, mul_zero, mul_one, pow_zero, sum_const, smul_eq_mul]
   have key : ∀ x ∈ n.divisorsAntidiagonal, (if x.2 = 0 then 0 else if x.1 = 0 then 0 else 1) = 1 := by
@@ -102,7 +99,7 @@ theorem zeta_mul_zeta : (ζ : ArithmeticFunction ℕ) * ζ = τ := by
 
 /-- The L-series of $\tau$ equals the square of the Riemann zeta function for $\Re(s) > 1$. -/
 theorem LSeries_tau_eq_riemannZeta_sq {s : ℂ} (hs : 1 < s.re) :
-    LSeries (↗τ) s = riemannZeta s ^ 2 := by
+    LSeries (↗tau) s = riemannZeta s ^ 2 := by
   have h1 : LSeries (↗(ζ * ζ)) s = LSeries (↗((ζ : ArithmeticFunction ℂ) * ζ)) s := by
     congr 1; ext n; simp only [← natCoe_mul, natCoe_apply]
   have h2 : LSeries (↗((ζ : ArithmeticFunction ℂ) * ζ)) s = LSeries (↗ζ) s * LSeries (↗ζ) s :=
@@ -121,7 +118,7 @@ theorem d_zero : d 0 = 1 := pow_zero zeta
 theorem d_one : d 1 = zeta := pow_one zeta
 
 /-- `d 2` is the classical divisor count function `τ`. -/
-theorem d_two : d 2 = τ := by simp [d, sq, zeta_mul_zeta]
+theorem d_two : d 2 = tau := by simp [d, sq, zeta_mul_zeta]
 
 /-- Recurrence: `d_(k+1) = d_k * ζ`. -/
 theorem d_succ (k : ℕ) : d (k + 1) = d k * zeta := pow_succ zeta k
@@ -323,7 +320,7 @@ theorem zeta_mul_zeta_mul_zeta_mul_zeta_eq (α β s : ℂ) (h1 : 1 < s.re) (h2 :
 
 /-- Corollary:  `ζ(s)^4=ζ(2s) ∑ τ(n)^2 n^(-s)` -/
 theorem zeta_pow_four_eq (s : ℂ) (hs : 1 < s.re) :
-    riemannZeta s ^ 4 = riemannZeta (2 * s) * LSeries (fun n ↦ (τ n) ^ 2) s := by
+    riemannZeta s ^ 4 = riemannZeta (2 * s) * LSeries (fun n ↦ (tau n) ^ 2) s := by
   convert (zeta_mul_zeta_mul_zeta_mul_zeta_eq 0 0 s hs (by simpa using hs) (by simpa using hs)
       (by simpa using hs)) using 1
   · ring_nf
@@ -335,14 +332,14 @@ theorem zeta_pow_four_eq (s : ℂ) (hs : 1 < s.re) :
 Baby Rankin-Selberg:
 `ζ(s)∑τ(n^2)n^-s = ∑τ(n)^2 n^-s`. -/
 lemma zeta_mul_tau_square_eq (s : ℂ) (hs : 1 < s.re) :
-    riemannZeta s * LSeries (fun n ↦ τ (n ^ 2)) s = LSeries (fun n ↦ (τ n) ^ 2) s := by
+    riemannZeta s * LSeries (fun n ↦ tau (n ^ 2)) s = LSeries (fun n ↦ (tau n) ^ 2) s := by
   sorry
 
 /--
 Zeta cubed:
 `ζ(s)^3 = ζ(2s) ∑ τ(n^2) n^(-s)`. -/
 lemma zeta_pow_three_eq (s : ℂ) (hs : 1 < s.re) :
-    riemannZeta s ^ 3 = riemannZeta (2 * s) * LSeries (fun n ↦ τ (n ^ 2)) s := by
+    riemannZeta s ^ 3 = riemannZeta (2 * s) * LSeries (fun n ↦ tau (n ^ 2)) s := by
   apply mul_left_cancel₀ (riemannZeta_ne_zero_of_one_lt_re hs)
   linear_combination (zeta_pow_four_eq s hs) - riemannZeta (2 * s) * (zeta_mul_tau_square_eq s hs)
 
@@ -352,7 +349,7 @@ Zeta cubed alt:
 lemma zeta_pow_three_eq_alt (s : ℂ) (hs : 1 < s.re) :
     riemannZeta s ^ 3 =
     LSeries (fun n ↦
-      ∑ dm ∈ n.divisors ×ˢ n.divisors with dm.1 ^ 2 * dm.2 = n, τ (dm.2 ^ 2)) s := by
+      ∑ dm ∈ n.divisors ×ˢ n.divisors with dm.1 ^ 2 * dm.2 = n, tau (dm.2 ^ 2)) s := by
   sorry
 
 lemma two_pow_omega_le_sigma_zero {n : ℕ} (hn : n ≠ 0) :
